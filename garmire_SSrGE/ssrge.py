@@ -18,7 +18,9 @@ import numpy as np
 def debug():
     """
     #### DEBUG ####
+
     **** Test function ****
+
     """
     from garmire_SSrGE.examples import create_example_matrix_v1
 
@@ -42,6 +44,7 @@ class SSrGE():
             min_obs_for_regress=MIN_OBS_FOR_REGRESS,
             nb_threads=NB_THREADS,
             model='LASSO',
+            model_params=None,
             alpha=0.1,
             l1_ratio=0.5,
             verbose=True):
@@ -68,8 +71,11 @@ class SSrGE():
             self.model_params = {'alpha': alpha,
                                  'l1_ratio': l1_ratio
             }
+        else:
+            self.model = model
+            self.model_params = model_params
 
-    def fit(self, SNV_mat, GE_mat):
+    def fit(self, SNV_mat, GE_mat, to_dense=False):
         """
         infer vSNV by fitting sparse linear models using SNV as features
         and gene expression as objectives
@@ -77,6 +83,7 @@ class SSrGE():
         input:
             :SNV_mat: (n_samples x n_SNVs) matrix (binary). Matrix can be sparse
             :GE_mat: (n_GE x n_samples) matrix (float value)
+            :to_dense: Bool    if True SNV_mat is converted as ndarray
 
         return:
             SNV_index, vSNV_mat
@@ -92,6 +99,9 @@ class SSrGE():
 
         if issparse(GE_mat):
             GE_mat = GE_mat.todense()
+
+        if to_dense and issparse(SNV_mat):
+            SNV_mat = SNV_mat.todense()
 
         if isinstance(GE_mat, np.matrix):
             GE_mat = np.array(GE_mat)
@@ -118,11 +128,11 @@ class SSrGE():
         """
         return SNV_mat.T[self.vSNV_weight.keys()].T
 
-    def fit_transform(self, SNV_mat, GE_mat):
+    def fit_transform(self, SNV_mat, GE_mat, to_dense=False):
         """
         Combination of fit and transform functions
         """
-        self.fit(SNV_mat, GE_mat)
+        self.fit(SNV_mat, GE_mat, to_dense)
         return self.transform(SNV_mat)
 
     def _process_computed_coefs(self, coefs, g_index, intercepts):
