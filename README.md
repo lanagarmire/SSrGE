@@ -28,7 +28,6 @@ pip install -r requirements.txt --user
     * have raw gene expression inferred by featureCounts, in a single file present in a distinct folder, named according to the sample Id.
     * have VCF file, corresponding to the inferred SNV in a single file present in a distinct folder, named according to the sample Id.
     * The first fields of the .vcf files should correspond to the following example:
-      *
 
       ```text
       chrID     start   SNVid       original    new           score     validSNV
@@ -37,6 +36,8 @@ pip install -r requirements.txt --user
 
   * all the folders containing the gene expression matrices must be in a distinct folder
   * all the folders containing the VCF files must be in a distinct folder
+
+* The data extraction procedure is particularly well suited for data produced using [garmire_SNV_calling](https://gitlab.com/Grouumf/garmire_SNV_calling) package
 
 ## configuration
 All the project variables can be defined into the config file (./garmire_SSrGE/config.py). Also, when using directly python class instances, one could access to variables and functions description using the interactive help (see usage) with ipython.
@@ -69,3 +70,35 @@ print X_r.shape, X.shape
 
 ranked_feature = procedure.rank_vSNVs()
 ```
+
+* Rank vSNVs:
+
+```python
+ranked_feature = procedure.rank_vSNVs()
+```
+
+* Performing cross-validation
+
+```python
+from garmire_SSrGE.linear_cross_validation import LinearCrossVal
+
+
+X, Y, W = create_example_matrix_v1()
+
+cross_val = LinearCrossVal(
+model='LASSO',
+SNV_mat=X,
+GE_mat=Y
+)
+
+path = cross_val.regularization_path('alpha',  [0.01, 0.1, 0.2])
+```
+
+* Extract SNV and GE matrices from RNA-seq dataset:
+  * *once all the variables of the project are defined* into the config file (config.py), perform the test:
+
+```bash
+  python test/test_dataset.py -v
+  nosetests -v test/test_dataset.py # alternative using nose
+  pytest test/test_dataset.py -v # alternative using pytest
+  ```

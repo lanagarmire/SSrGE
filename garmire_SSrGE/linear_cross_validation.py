@@ -18,7 +18,6 @@ def debug():
     from garmire_SSrGE.examples import create_example_matrix_v1
 
     X, Y, W = create_example_matrix_v1()
-    model_params = {}
 
     cross_val = LinearCrossVal(
         model='LASSO',
