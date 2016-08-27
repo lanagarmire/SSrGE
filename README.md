@@ -64,6 +64,9 @@ help(create_example_matrix_v1)
 procedure = SSrGE()
 
 procedure.fit(X, Y)
+
+score_models, score_null_models = procedure.score(X, Y)
+
 X_r = procedure.transform(X)
 
 print X_r.shape, X.shape
@@ -82,6 +85,7 @@ ranked_feature = procedure.rank_vSNVs()
 ```python
 from garmire_SSrGE.linear_cross_validation import LinearCrossVal
 
+help(LinearCrossVal)
 
 X, Y, W = create_example_matrix_v1()
 
@@ -102,3 +106,27 @@ path = cross_val.regularization_path('alpha',  [0.01, 0.1, 0.2])
   nosetests -v test/test_dataset.py # alternative using nose
   pytest test/test_dataset.py -v # alternative using pytest
   ```
+
+* extract matrices
+
+```python
+from garmire_SSrGE.extract_matrices_from_dataset import ExtractMatrix
+
+help(ExtractMatrix)
+
+extract_matrix = ExtractMatrix()
+
+SNV_mat = extract_matrix.extract_SNV_mat()
+GE_mat = extract_matrix.extract_GE_mat()
+```
+
+* perform procedures and rank genes and vSNVs
+
+```python
+
+procedure.fit(SNV_mat, GE_mat)
+
+ranked_vSNVS = ssrge.rank_vSNVs(extract_matrix) # instance of ExtractMatrix is required to obtain vSNV ids and names
+
+ranked_genes = ssrge.rank_genes(extract_matrix)
+```
