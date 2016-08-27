@@ -1,0 +1,14 @@
+*.pyc
+*.nt
+*.err
+*.out
+*.csv
+*egg-info*
+build/*
+dist/*
+*data/*
+*~
+*tmp/*
+*#*
+*.cache*
+*/slurm/bash_variable.sh
