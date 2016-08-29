@@ -61,6 +61,8 @@ from garmire_SSrGE.examples import create_example_matrix_v1 # create examples ma
 help(SSrGE) # See the different functions and specific variables
 help(create_example_matrix_v1)
 
+X, Y, W = create_example_matrix_v1()
+
 procedure = SSrGE()
 
 procedure.fit(X, Y)
@@ -72,6 +74,10 @@ X_r = procedure.transform(X)
 print X_r.shape, X.shape
 
 ranked_feature = procedure.rank_vSNVs()
+
+procedure_ES = SSrGE(model='ElasticNet', alpha=01, l1_ratio=0.5) # Fitting using sklearn ElasticNet instead
+procedure_ES.fit(X, Y)
+
 ```
 
 * Rank vSNVs:
@@ -130,3 +136,7 @@ ranked_vSNVS = ssrge.rank_vSNVs(extract_matrix) # instance of ExtractMatrix is r
 
 ranked_genes = ssrge.rank_genes(extract_matrix)
 ```
+
+## contact and credentials
+* Developer: Olivier Poirion (PhD)
+* contact: opoirion@hawaii.edu
