@@ -9,9 +9,6 @@ extract SNV and GE matrices from a given project
 """
 
 ######## SSrGE VARIABLE ##############################
-# All the parameter can be changed dynamically when
-# instantiating the different classes through Python
-
 TIME_LIMIT = 5
 # time limit for one linear regression model
 MIN_OBS_FOR_REGRESS = 10

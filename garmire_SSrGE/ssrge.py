@@ -28,9 +28,8 @@ def debug():
 
     ssrge = SSrGE(alpha=0.01)
     X_r = ssrge.fit_transform(X, Y)
-    import ipdb;ipdb.set_trace()
-    score = ssrge.score(X,Y)
 
+    score = ssrge.score(X,Y)
     ssrge.rank_vSNVs()
 
 
@@ -145,6 +144,9 @@ class SSrGE():
         input:
             :coefs: list<Counter>
         """
+        if self.verbose:
+            print '\nprocess computed coefs....'
+
         self.vSNV_index = list(set([key for coef in coefs for key in coef.iterkeys()]))
         self.vSNV_index = {self.vSNV_index[i]: i for i in range(len(self.vSNV_index))}
 
