@@ -18,6 +18,6 @@ setup(name='garmire_SSrGE',
       zip_safe=False,
       install_requires=['numpy',
                         'scipy',
-                        'scikit-learn',
+                        'scikit-learn==0.18',
                         'tabulate'],
       )

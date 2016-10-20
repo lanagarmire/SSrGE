@@ -64,12 +64,15 @@ class SSrGE():
         if model == 'LASSO':
             self.model = Lasso
             self.model_params = {
-                'alpha': alpha
+                'alpha': alpha,
+                'max_iter': 1000,
             }
         elif model == 'ElasticNet':
             self.model = ElasticNet
-            self.model_params = {'alpha': alpha,
-                                 'l1_ratio': l1_ratio
+            self.model_params = {
+                'alpha': alpha,
+                'l1_ratio': l1_ratio,
+                'max_iter': 1000,
             }
         else:
             self.model = model

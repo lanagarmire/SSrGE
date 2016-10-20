@@ -1,6 +1,6 @@
 """ """
 
-from sklearn.cross_validation import KFold
+from sklearn.model_selection import KFold
 from garmire_SSrGE.ssrge import SSrGE
 
 from garmire_SSrGE.config import CROSS_VAL_NFOLD
@@ -106,9 +106,10 @@ class LinearCrossVal():
 
         ssrge = SSrGE(**self.ssrge_params)
 
-        for train, test in KFold(self.GE_mat.shape[1],
-                                 n_folds=self.n_folds,
-                                 shuffle=True):
+        kfold = KFold(n_splits=self.n_folds,
+                                 shuffle=True)
+
+        for train, test in kfold.split(self.SNV_mat):
             i += 1
             print '\n## fold nb {0}'.format(i)
 
