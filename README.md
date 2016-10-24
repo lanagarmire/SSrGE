@@ -4,12 +4,16 @@ This procedure aims to fit sparse linear models using a binary matrix (n_samples
 
 This procedure can be used as dimension reduction/feature selection or feature ranking. It is based on the scikit-learn library and is easy to re-implement. However, the package allows to parallelize the fitting procedures, implements a cross-validation procedure, eeSNVs and gene rankings and can extract SNV and Gene expressions (normalized) matrices from RNA-seq dataset.
 
+This package can be used in stand-alone to reduce any single-cell SNV matrix (raw:single-cell, col: SNV (binary)), using a single-cell gene expression matrix (raw: gene-expression (float), col:single-cell). However, we have developped 2 addtionnal packages that can be used to download and process RNA-seq data:
+* [download_ncbi_data](https://github.com/lanagarmire/download_ncbi_sra): download and extract .sra files from NCBI
+* [SNV_calling](https://github.com/lanagarmire/SNV_calling): align reads/infer SNVs and infer gene expression matrices from .fastq files.
+
 
 ## installation (local)
 
 ```bash
-git clone garmire_SSrGE
-cd garmire_SSrGE
+git clone https://github.com/lanagarmire/SSrGE.git
+cd SSrGE
 pip install -r requirements.txt --user
 ```
 
@@ -104,8 +108,16 @@ GE_mat=Y
 path = cross_val.regularization_path('alpha',  [0.01, 0.1, 0.2])
 ```
 
-* Extract SNV and GE matrices from RNA-seq dataset:
-  * *once all the variables of the project are defined* into the config file (config.py), perform the test:
+## Extract SNV and GE matrices from RNA-seq dataset:
+   Starting from .sra files, one can:
+   * first download .sra files directly from NCBI .soft files using our custom package : [download_ncbi_sra](https://github.com/lanagarmire/download_ncbi_sra.git)
+   * Then, infer eeSNVs using our SNV calling package : [SNV_calling](https://github.com/lanagarmire/SNV_calling.git)
+   * Finally, define the folder locations of the different required inputs:
+   ** .soft file
+   ** .gtf file
+   ** expression matrices folder (same format than output of FeatureCount softwaqre)
+   ** vcf folder
+   *once all the variables of the project are defined* into the config file (config.py), perform the test:
 
 ```bash
   python test/test_dataset.py -v

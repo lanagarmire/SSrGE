@@ -38,10 +38,13 @@ GTF_PATH = '{0}/Illumina_hg19/Annotation/genes.gtf'.format(GLOBAL_DATA_ROOT)
 # gtf file of the reference genome
 EXPRESSION_MATRIX_FOLDER_PATH = '{0}/expression_profile/STAR/'.format(PROJECT_PATH)
 # Path of the folders containing the gene expression matrices
+# One distinct folder must be used per sample
 GENE_MATRIX_NAME = 'matrix_counts.txt'
 # name of the gene expression matrix file
+# matrix should be in the same format than the output of FeatureCount software
 VCF_FOLDER_PATH = '{0}/snv_pipeline_raw/data/'.format(PROJECT_PATH)
 # Path of the folders containing the vcf files
+# One distinct folder must be used per sample
 VCF_NAME = 'snv_filtered.vcf'
 # Name of the VCF the vcf files
 ##############################################################################
