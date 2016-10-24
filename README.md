@@ -41,7 +41,7 @@ pip install -r requirements.txt --user
   * all the folders containing the gene expression matrices must be in a distinct folder
   * all the folders containing the VCF files must be in a distinct folder
 
-* The data extraction procedure is particularly well suited for data produced using [garmire_SNV_calling](https://gitlab.com/Grouumf/garmire_SNV_calling) package
+* The data extraction procedure is particularly well suited for data produced using [garmire_SNV_calling](https://github.com/lanagarmire/SNV_calling) package
 
 ## configuration
 All the project variables can be defined into the config file (./garmire_SSrGE/config.py). Also, when using directly python class instances, one could access to variables and functions description using the interactive help (see usage) with ipython.
