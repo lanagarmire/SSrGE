@@ -24,7 +24,7 @@ class TestPackage(unittest.TestCase):
         ssrge = SSrGE(alpha=0.01)
 
         ssrge.fit(X, Y)
-        self.assertTrue(ssrge.vSNV_weight)
+        self.assertTrue(ssrge.eeSNV_weight)
 
         Xr = ssrge.transform(X)
 
@@ -32,7 +32,7 @@ class TestPackage(unittest.TestCase):
         self.assertTrue(Xr.shape[0] == X.shape[0])
         self.assertTrue(Xr.shape[1] < X.shape[1])
 
-        snv_ranked = ssrge.rank_vSNVs()
+        snv_ranked = ssrge.rank_eeSNVs()
 
         self.assertTrue(snv_ranked)
 

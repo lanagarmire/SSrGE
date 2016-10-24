@@ -2,7 +2,7 @@
 
 This procedure aims to fit sparse linear models using a binary matrix (n_samples x n_SNV) as features matrix and a gene expression matrix (n_genes x n_samples) as response. The procedure a infer sparse linear model (LASSO by default) for each gene (raw in the second matrix) and keep the non-null inferred coefs.
 
-This procedure can be used as dimension reduction/feature selection or feature ranking. It is based on the scikit-learn library and is easy to re-implement. However, the package allows to parallelize the fitting procedures, implements a cross-validation procedure, vSNVs and gene rankings and can extract SNV and Gene expressions (normalized) matrices from RNA-seq dataset.
+This procedure can be used as dimension reduction/feature selection or feature ranking. It is based on the scikit-learn library and is easy to re-implement. However, the package allows to parallelize the fitting procedures, implements a cross-validation procedure, eeSNVs and gene rankings and can extract SNV and Gene expressions (normalized) matrices from RNA-seq dataset.
 
 
 ## installation (local)
@@ -73,17 +73,17 @@ X_r = procedure.transform(X)
 
 print X_r.shape, X.shape
 
-ranked_feature = procedure.rank_vSNVs()
+ranked_feature = procedure.rank_eeSNVs()
 
 procedure_ES = SSrGE(model='ElasticNet', alpha=01, l1_ratio=0.5) # Fitting using sklearn ElasticNet instead
 procedure_ES.fit(X, Y)
 
 ```
 
-* Rank vSNVs:
+* Rank eeSNVs:
 
 ```python
-ranked_feature = procedure.rank_vSNVs()
+ranked_feature = procedure.rank_eeSNVs()
 ```
 
 * Performing cross-validation
@@ -126,13 +126,13 @@ SNV_mat = extract_matrix.extract_SNV_mat()
 GE_mat = extract_matrix.extract_GE_mat()
 ```
 
-* perform procedures and rank genes and vSNVs
+* perform procedures and rank genes and eeSNVs
 
 ```python
 
 procedure.fit(SNV_mat, GE_mat)
 
-ranked_vSNVS = ssrge.rank_vSNVs(extract_matrix) # instance of ExtractMatrix is required to obtain vSNV ids and names
+ranked_eeSNVS = ssrge.rank_eeSNVs(extract_matrix) # instance of ExtractMatrix is required to obtain eeSNV ids and names
 
 ranked_genes = ssrge.rank_genes(extract_matrix)
 ```

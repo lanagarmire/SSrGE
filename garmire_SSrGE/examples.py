@@ -26,7 +26,7 @@ def create_example_matrix_v1(nb_cells=100, nb_snvs=6, nb_genes=5):
 def launch_pipeline_and_rank_genes(alpha=0.1, limit=None):
     """
     launch the SSrGE pipeline on the dataset defined in config.py
-    and rank genes and vSNVs
+    and rank genes and eeSNVs
 
     input:
         :alpha: float    regularization parameter

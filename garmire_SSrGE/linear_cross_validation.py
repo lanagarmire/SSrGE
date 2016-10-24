@@ -87,7 +87,7 @@ class LinearCrossVal():
                 print '\nmean error model:', errs_models
                 print 'mean error null model:', errs_null_models
                 print 'mean number of model:', nb_models
-                print 'mean number of vSNVs:', nb_coefs
+                print 'mean number of eeSNVs:', nb_coefs
 
         return self.err_model_mean
 
@@ -125,7 +125,7 @@ class LinearCrossVal():
 
             errs_models.append(score)
             errs_null_models.append(score_null)
-            nb_coefs.append(len(ssrge.vSNV_weight))
+            nb_coefs.append(len(ssrge.eeSNV_weight))
             nb_models.append(len(ssrge.intercepts))
             intercepts.append(np.mean(ssrge.intercepts.values()))
 

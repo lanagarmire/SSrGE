@@ -30,7 +30,7 @@ def debug():
     X_r = ssrge.fit_transform(X, Y)
 
     score = ssrge.score(X,Y)
-    ssrge.rank_vSNVs()
+    ssrge.rank_eeSNVs()
 
 
 class SSrGE():
@@ -52,10 +52,10 @@ class SSrGE():
         self.min_obs_for_regress = min_obs_for_regress
         self.nb_threads = nb_threads
 
-        self.vSNV_weight = None # total vSNV absolute weight
+        self.eeSNV_weight = None # total eeSNV absolute weight
         self.SNV_mat_shape = None # dim of the fitted SNV_mat
         self.GE_mat_shape = None # dim of the GE_mat used as predicat
-        self.vSNV_index = None # vSNV index
+        self.eeSNV_index = None # eeSNV index
         self.intercepts = None # Intercepts for non null model: {index gene: intercept value}
         self.coefs = None # coefs for non null model: {index gene: coefs dict}
         self.verbose = verbose # whether to print ranking results into the terminal
@@ -79,7 +79,7 @@ class SSrGE():
 
     def fit(self, SNV_mat, GE_mat, to_dense=False):
         """
-        infer vSNV by fitting sparse linear models using SNV as features
+        infer eeSNV by fitting sparse linear models using SNV as features
         and gene expression as objectives
 
         input:
@@ -88,10 +88,10 @@ class SSrGE():
             :to_dense: Bool    if True SNV_mat is converted as ndarray
 
         return:
-            SNV_index, vSNV_mat
+            SNV_index, eeSNV_mat
 
-            :SNV_index: list<int>    List of vSNV index from the SNV_matrix
-            :vSNV_mat: (n_samples x n_vSNVs) matrix (binary)    (len(n_vSNVs) < len(n_SNVs))
+            :SNV_index: list<int>    List of eeSNV index from the SNV_matrix
+            :eeSNV_mat: (n_samples x n_eeSNVs) matrix (binary)    (len(n_eeSNVs) < len(n_SNVs))
         """
 
         self.SNV_mat_shape = SNV_mat.shape
@@ -126,9 +126,9 @@ class SSrGE():
         input:
             :SNV_mat: Matrix (len(samples), len(SNV))
         return:
-            :vSNV_mat: Matrix (len(samples), len(vSNV))
+            :eeSNV_mat: Matrix (len(samples), len(eeSNV))
         """
-        return SNV_mat.T[self.vSNV_weight.keys()].T
+        return SNV_mat.T[self.eeSNV_weight.keys()].T
 
     def fit_transform(self, SNV_mat, GE_mat, to_dense=False):
         """
@@ -139,7 +139,7 @@ class SSrGE():
 
     def _process_computed_coefs(self, coefs, g_index, intercepts):
         """
-        instanciate weight coefs and vSNV indexes
+        instanciate weight coefs and eeSNV indexes
 
         input:
             :coefs: list<Counter>
@@ -147,15 +147,15 @@ class SSrGE():
         if self.verbose:
             print '\nprocess computed coefs....'
 
-        self.vSNV_index = list(set([key for coef in coefs for key in coef.iterkeys()]))
-        self.vSNV_index = {self.vSNV_index[i]: i for i in range(len(self.vSNV_index))}
+        self.eeSNV_index = list(set([key for coef in coefs for key in coef.iterkeys()]))
+        self.eeSNV_index = {self.eeSNV_index[i]: i for i in range(len(self.eeSNV_index))}
 
-        self.vSNV_weight = Counter()
+        self.eeSNV_weight = Counter()
         self.intercepts = {}
         self.coefs = {}
 
         for counter, gene, intercept in zip(coefs, g_index, intercepts):
-            self.vSNV_weight += counter
+            self.eeSNV_weight += counter
 
             if counter:
                 self.intercepts[gene] = intercept
@@ -219,16 +219,16 @@ class SSrGE():
 
         return np.mean(errs_model), np.mean(errs_null_model)
 
-    def rank_vSNVs(self, extract_matrix=None):
+    def rank_eeSNVs(self, extract_matrix=None):
         """
-        rank vSNVs according to their inferred coefs
+        rank eeSNVs according to their inferred coefs
 
         input:
             [OPTIONAL] extract_matrix garmire_ssrge.extract_matrix.ExtractMatrix instance
             if passed, allows to parse SNV name and ids to the ranking results
         """
 
-        ranked_snv = sorted(self.vSNV_weight.iteritems(),
+        ranked_snv = sorted(self.eeSNV_weight.iteritems(),
                             key=lambda x:x[1],
                             reverse=True)
 
@@ -247,19 +247,19 @@ class SSrGE():
 
         if self.verbose:
             print '\n'
-            print tabulate(tab, headers=['feature name', 'vSNV id', 'score'])
+            print tabulate(tab, headers=['feature name', 'eeSNV id', 'score'])
 
         return tab
 
     def rank_genes(self, extract_matrix):
         """
-        rank genes according to the inferred coefs of vSNVs inferred and present inside
+        rank genes according to the inferred coefs of eeSNVs inferred and present inside
 
         input:
             extract_matrix garmire_ssrge.extract_matrix.ExtractMatrix instance
         """
 
-        snv_ranked = self.rank_vSNVs(extract_matrix)
+        snv_ranked = self.rank_eeSNVs(extract_matrix)
 
         gene_scores = Counter()
 
