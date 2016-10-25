@@ -5,6 +5,7 @@ from garmire_SSrGE.config import MIN_OBS_FOR_REGRESS
 from garmire_SSrGE.config import NB_THREADS
 
 from sklearn.linear_model import Lasso
+from sklearn.metrics import median_absolute_error
 
 from collections import Counter
 
@@ -209,23 +210,31 @@ class SSrGE():
             Y_null_inferred = np.ones(Y_test.shape[0]) * self.intercepts[non_null_gene]
 
 
-            norm = ((Y_inferred - Y_test)**2).sum()
-            norm_null = ((Y_null_inferred - Y_test)**2).sum()
+            # norm = ((Y_inferred - Y_test)**2).sum()
+            # norm_null = ((Y_null_inferred - Y_test)**2).sum()
 
-            y_n = float(len(Y_inferred))
+            # y_n = float(len(Y_inferred))
+            # Y_mean = np.mean(Y_test)
 
-            errs_model.append(1 / y_n * norm)
-            errs_null_model.append(1 / y_n * norm_null)
+            # score = np.sqrt(1 / y_n * norm) / Y_mean
+            # score_null = np.sqrt(1 / y_n * norm_null) / Y_mean
+
+            score = median_absolute_error(Y_inferred, Y_test)
+            score_null = median_absolute_error(Y_null_inferred, Y_test)
+
+            errs_model.append(score)
+            errs_null_model.append(score_null)
 
         return np.mean(errs_model), np.mean(errs_null_model)
 
-    def rank_eeSNVs(self, extract_matrix=None):
+    def rank_eeSNVs(self, extract_matrix=None, print_rank=False):
         """
         rank eeSNVs according to their inferred coefs
 
         input:
             [OPTIONAL] extract_matrix garmire_ssrge.extract_matrix.ExtractMatrix instance
             if passed, allows to parse SNV name and ids to the ranking results
+            print_rank: bool    whether to print ranked snv
         """
 
         ranked_snv = sorted(self.eeSNV_weight.iteritems(),

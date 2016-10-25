@@ -113,10 +113,10 @@ path = cross_val.regularization_path('alpha',  [0.01, 0.1, 0.2])
    * first download .sra files directly from NCBI .soft files using our custom package : [download_ncbi_sra](https://github.com/lanagarmire/download_ncbi_sra.git)
    * Then, infer eeSNVs using our SNV calling package : [SNV_calling](https://github.com/lanagarmire/SNV_calling.git)
    * Finally, define the folder locations of the different required inputs:
-   ** .soft file
-   ** .gtf file
-   ** expression matrices folder (same format than output of FeatureCount softwaqre)
-   ** vcf folder
+      ** .soft file
+      ** .gtf file
+      ** expression matrices folder (same format than output of FeatureCount software)
+      ** vcf folder
    *once all the variables of the project are defined* into the config file (config.py), perform the test:
 
 ```bash
