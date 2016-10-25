@@ -18,7 +18,30 @@ def create_example_matrix_v1(nb_cells=100, nb_snvs=6, nb_genes=5):
     W[3][3] = 2
     W[5][4] = 6
 
-    Y = (X * W).T
+    Y = (X * W)
+
+    return X, Y, W
+
+def create_example_matrix_v2(nb_cells=100, nb_snvs=6, nb_genes=5):
+    """
+    create a random feature matrix and infer Y according to coefs W
+    Five sparse coefs are set into W
+    """
+    X = csr_matrix(np.random.random((nb_cells, nb_snvs)))
+    W = np.zeros((nb_snvs, nb_genes))
+
+
+    W[0][0] = 5
+    W[1][0] = 5
+    W[3][3] = 2
+    W[5][4] = 6
+    W[2][4] = 4
+
+    Y = (X * W)
+
+    gene_list = range(nb_genes)
+
+    snv_list = []
 
     return X, Y, W
 

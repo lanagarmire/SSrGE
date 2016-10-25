@@ -13,6 +13,8 @@ from tabulate import tabulate
 
 from scipy.sparse import issparse
 
+from collections import defaultdict
+
 import numpy as np
 
 
@@ -32,6 +34,7 @@ def debug():
 
     score = ssrge.score(X,Y)
     ssrge.rank_eeSNVs()
+    import ipdb;ipdb.set_trace()
 
 
 class SSrGE():
@@ -40,6 +43,8 @@ class SSrGE():
     """
     def __init__(
             self,
+            snv_name_list,
+            gene_name_list,
             time_limit=TIME_LIMIT,
             min_obs_for_regress=MIN_OBS_FOR_REGRESS,
             nb_threads=NB_THREADS,
@@ -49,6 +54,14 @@ class SSrGE():
             l1_ratio=0.5,
             verbose=True):
         """ """
+        self.snv_index_dict = enumerate(snv_name_list)
+        self.gene_index_dict = enumerate(gene_name_list)
+
+        self.gene_to_snv_dict = defaultdict(list)
+
+        for (gene, ids) in self.snv_name_list:
+            self.gene_to_snv_dict[gene].append((gene, ids))
+
         self.time_limit = time_limit
         self.min_obs_for_regress = min_obs_for_regress
         self.nb_threads = nb_threads
@@ -85,7 +98,7 @@ class SSrGE():
 
         input:
             :SNV_mat: (n_samples x n_SNVs) matrix (binary). Matrix can be sparse
-            :GE_mat: (n_GE x n_samples) matrix (float value)
+            :GE_mat: (n_samples x n_GEs) matrix (float value)
             :to_dense: Bool    if True SNV_mat is converted as ndarray
 
         return:
@@ -98,7 +111,7 @@ class SSrGE():
         self.SNV_mat_shape = SNV_mat.shape
         self.GE_mat_shape = GE_mat.shape
 
-        assert(self.SNV_mat_shape[0] == self.GE_mat_shape[1])
+        assert(self.SNV_mat_shape[0] == self.GE_mat_shape[0])
 
         if issparse(GE_mat):
             GE_mat = GE_mat.todense()
@@ -111,7 +124,7 @@ class SSrGE():
 
         g_index, coefs, intercepts = BatchFitting(
             I_mat=SNV_mat,
-            O_mat=GE_mat,
+            O_mat=GE_mat.T,
             model=self.model,
             model_params=self.model_params,
             nb_processes=self.nb_threads,
