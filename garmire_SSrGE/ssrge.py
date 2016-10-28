@@ -47,7 +47,8 @@ class SSrGE():
             model_params=None,
             alpha=0.1,
             l1_ratio=0.5,
-            verbose=True):
+            verbose=True,
+            **kwargs):
         """ """
         self.time_limit = time_limit
         self.min_obs_for_regress = min_obs_for_regress
