@@ -24,15 +24,19 @@ def debug():
     **** Test function ****
 
     """
-    from garmire_SSrGE.examples import create_example_matrix_v1
+    from garmire_SSrGE.examples import create_example_matrix_v2
 
-    X, Y, W = create_example_matrix_v1()
+    X, Y, ge_list, s_list = create_example_matrix_v2()
 
-    ssrge = SSrGE(alpha=0.01)
+    ssrge = SSrGE(snv_id_list=s_list,
+                  gene_id_list=ge_list,
+                  nb_ranked_genes=2,
+                  alpha=0.01)
     X_r = ssrge.fit_transform(X, Y)
 
     score = ssrge.score(X,Y)
-    ssrge.rank_eeSNVs()
+    print ssrge.retained_snvs
+    print ssrge.retained_genes
 
 
 class SSrGE():
@@ -152,7 +156,7 @@ class SSrGE():
 
     def _select_top_ranked_snvs(self):
         """ """
-        self.retained_genes = [gene for gene in
+        self.retained_genes = [gene for gene, score in
                                self.genes_ranked[:self.nb_ranked_genes]]
         self.retained_snvs = []
 
@@ -167,7 +171,7 @@ class SSrGE():
         return:
             :eeSNV_mat: Matrix (len(samples), len(eeSNV))
         """
-        return SNV_mat.T[[self.snv_index[snv] for snv in self.retained_snvs]].T
+        return SNV_mat.T[[self.snv_id_dict[snv] for snv in self.retained_snvs]].T
 
     def fit_transform(self, SNV_mat, GE_mat, to_dense=False):
         """
@@ -283,7 +287,7 @@ class SSrGE():
         """
         return self.genes_ranked
 
-    def _rank_genes(self, extract_matrix):
+    def _rank_genes(self):
         """
         rank genes according to the inferred coefs of eeSNVs inferred and present inside
         """
