@@ -8,10 +8,14 @@ from sklearn.linear_model import Lasso
 from sklearn.metrics import median_absolute_error
 
 from collections import Counter
+from collections import defaultdict
 
 from tabulate import tabulate
 
 from scipy.sparse import issparse
+
+from warnings import warn
+
 
 import numpy as np
 
@@ -23,15 +27,30 @@ def debug():
     **** Test function ****
 
     """
-    from garmire_SSrGE.examples import create_example_matrix_v1
+    from garmire_SSrGE.examples import create_example_matrix_v2
 
-    X, Y, W = create_example_matrix_v1()
+    X, Y, ge_list, s_list = create_example_matrix_v2()
 
-    ssrge = SSrGE(alpha=0.01)
+    ssrge = SSrGE(snv_id_list=s_list,
+                  gene_id_list=ge_list,
+                  nb_ranked_features=3,
+                  alpha=0.01)
     X_r = ssrge.fit_transform(X, Y)
 
     score = ssrge.score(X,Y)
-    ssrge.rank_eeSNVs()
+    print ssrge.retained_snvs
+    print ssrge.retained_genes
+
+    ssrge = SSrGE(nb_ranked_features=2,
+                  alpha=0.01)
+
+    X_r = ssrge.fit_transform(X, Y)
+
+    score = ssrge.score(X,Y)
+    print ssrge.retained_snvs
+    print ssrge.retained_genes
+
+    import ipdb;ipdb.set_trace()
 
 
 class SSrGE():
@@ -40,6 +59,9 @@ class SSrGE():
     """
     def __init__(
             self,
+            snv_id_list=[],
+            gene_id_list=[],
+            nb_ranked_features=None,
             time_limit=TIME_LIMIT,
             min_obs_for_regress=MIN_OBS_FOR_REGRESS,
             nb_threads=NB_THREADS,
@@ -49,7 +71,42 @@ class SSrGE():
             l1_ratio=0.5,
             verbose=True,
             **kwargs):
-        """ """
+        """
+        input:
+            :gene_id_list: list of genes ids
+            :snv_id_list: list(tuple) <snv ids, gene ids>    the gene ids corresponds
+                                                              to the gene where the given
+                                                              svn is found
+            :nb_ranked_features: int    top ranked features (snvs and genes) to keep
+        """
+        self.retained_genes = []
+        self.retained_snvs = []
+        self._do_rank_genes = False
+        self._snv_ids_given = False
+        self.snv_index = None
+        self.gene_index = None
+        self.snv_id_dict = None
+
+        self.nb_ranked_features = nb_ranked_features
+
+        if list(snv_id_list):
+            try:
+                assert(all(len(snv) == 2 for snv in snv_id_list))
+            except Exception:
+                warn('snv_id_list given but not conform and cannot be used.'\
+                     'to rank gene_id_list.'\
+                     '\ncorrect format: :snv_id_list: list(tuple) <snv ids, gene ids>')
+            else:
+                self._do_rank_genes = True
+                self._snv_ids_given = True
+
+        self._create_dicts(snv_id_list, gene_id_list)
+
+        self.snvs_ranked = [] # list of tupe (snv, score)
+        self.genes_ranked = [] # list of tupe (gene, score)
+
+        self.gene_weights = None
+
         self.time_limit = time_limit
         self.min_obs_for_regress = min_obs_for_regress
         self.nb_threads = nb_threads
@@ -79,6 +136,14 @@ class SSrGE():
             self.model = model
             self.model_params = model_params
 
+    def _create_dicts(self, snv_id_list, gene_id_list):
+        """ """
+        self.snv_index = dict(enumerate(snv_id_list))
+        self.gene_index = dict(enumerate(gene_id_list))
+
+        self.snv_id_dict = {name: pos
+                            for pos, name in self.snv_index.iteritems()}
+
     def fit(self, SNV_mat, GE_mat, to_dense=False):
         """
         infer eeSNV by fitting sparse linear models using SNV as features
@@ -99,6 +164,11 @@ class SSrGE():
         self.SNV_mat_shape = SNV_mat.shape
         self.GE_mat_shape = GE_mat.shape
 
+        if not self._snv_ids_given:
+            self._create_dicts(range(self.SNV_mat_shape[1]),
+                               range(self.GE_mat_shape[0]))
+
+        assert(self.SNV_mat_shape[0] == self.GE_mat_shape[1])
         assert(self.SNV_mat_shape[0] == self.GE_mat_shape[1])
 
         if issparse(GE_mat):
@@ -121,6 +191,22 @@ class SSrGE():
             only_nonzero=True).run()
 
         self._process_computed_coefs(coefs, g_index, intercepts)
+        self._rank_eeSNVs()
+
+        if self._do_rank_genes:
+            self._rank_genes()
+
+        self.select_top_ranked_features()
+
+    def select_top_ranked_features(self, nb_ranked_features=None):
+        """ """
+        if not nb_ranked_features:
+            nb_ranked_features=self.nb_ranked_features
+
+        self.retained_genes = [gene for gene, score in
+                               self.genes_ranked[:nb_ranked_features]]
+        self.retained_snvs = [snv for snv, score in
+                               self.snvs_ranked[:nb_ranked_features]]
 
     def transform(self, SNV_mat):
         """
@@ -130,7 +216,7 @@ class SSrGE():
         return:
             :eeSNV_mat: Matrix (len(samples), len(eeSNV))
         """
-        return SNV_mat.T[self.eeSNV_weight.keys()].T
+        return SNV_mat.T[[self.snv_id_dict[snv] for snv in self.retained_snvs]].T
 
     def fit_transform(self, SNV_mat, GE_mat, to_dense=False):
         """
@@ -210,16 +296,6 @@ class SSrGE():
 
             Y_null_inferred = np.ones(Y_test.shape[0]) * self.intercepts[non_null_gene]
 
-
-            # norm = ((Y_inferred - Y_test)**2).sum()
-            # norm_null = ((Y_null_inferred - Y_test)**2).sum()
-
-            # y_n = float(len(Y_inferred))
-            # Y_mean = np.mean(Y_test)
-
-            # score = np.sqrt(1 / y_n * norm) / Y_mean
-            # score_null = np.sqrt(1 / y_n * norm_null) / Y_mean
-
             score = median_absolute_error(Y_inferred, Y_test)
             score_null = median_absolute_error(Y_null_inferred, Y_test)
 
@@ -228,62 +304,48 @@ class SSrGE():
 
         return np.mean(errs_model), np.mean(errs_null_model)
 
-    def rank_eeSNVs(self, extract_matrix=None, print_rank=False):
+    def rank_eeSNVs(self):
         """
         rank eeSNVs according to their inferred coefs
-
-        input:
-            [OPTIONAL] extract_matrix garmire_ssrge.extract_matrix.ExtractMatrix instance
-            if passed, allows to parse SNV name and ids to the ranking results
-            print_rank: bool    whether to print ranked snv
         """
+        return self.snvs_ranked
+
+    def _rank_eeSNVs(self):
+        """
+        rank eeSNVs according to their inferred coefs
+        """
+
+        self.snvs_ranked = []
 
         ranked_snv = sorted(self.eeSNV_weight.iteritems(),
                             key=lambda x:x[1],
                             reverse=True)
 
-        snv_ids = ['' for _ in range(len(ranked_snv))]
+        for snv_i, score in ranked_snv:
+            self.snvs_ranked.append((self.snv_index[snv_i], score))
 
-        names, scores = map(list, zip(*ranked_snv))
+        return self.snvs_ranked
 
-        if extract_matrix:
-            pos_index = {pos: name for name, pos in extract_matrix.snv_index.iteritems()}
+    def rank_genes(self):
+        """
+        rank genes according to their inferred coefs
+        """
+        return self.genes_ranked
 
-            for i in range(len(names)):
-                names[i] = pos_index[names[i]]
-                snv_ids[i] = extract_matrix.extract_data.snv_id_dict[names[i]]
-
-        tab = zip(names, snv_ids, scores)
-
-        if self.verbose:
-            print '\n'
-            print tabulate(tab, headers=['feature name', 'eeSNV id', 'score'])
-
-        return tab
-
-    def rank_genes(self, extract_matrix):
+    def _rank_genes(self):
         """
         rank genes according to the inferred coefs of eeSNVs inferred and present inside
-
-        input:
-            extract_matrix garmire_ssrge.extract_matrix.ExtractMatrix instance
         """
+        self.gene_weights = Counter()
 
-        snv_ranked = self.rank_eeSNVs(extract_matrix)
+        for snv_i, score in self.eeSNV_weight.iteritems():
+            gene, pos = self.snv_index[snv_i]
+            self.gene_weights[gene] += score
 
-        gene_scores = Counter()
-
-        for (gene, pos), snv_id, score in snv_ranked:
-            gene_scores[gene] += score
-
-        ranked_genes = sorted(gene_scores.iteritems(),
-                              key=lambda x:x[1],
-                              reverse=True)
-
-        if self.verbose:
-            print tabulate(ranked_genes, headers=['Gene name', 'score'])
-
-        return ranked_genes
+        self.genes_ranked = sorted(self.gene_weights.iteritems(),
+                                  key=lambda x:x[1],
+                                  reverse=True)
+        return self.genes_ranked
 
 
 if __name__ == "__main__":
