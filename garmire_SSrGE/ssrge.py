@@ -47,7 +47,7 @@ class SSrGE():
             self,
             snv_id_list,
             gene_id_list,
-            nb_ranked_genes=100,
+            nb_ranked_features=None,
             time_limit=TIME_LIMIT,
             min_obs_for_regress=MIN_OBS_FOR_REGRESS,
             nb_threads=NB_THREADS,
@@ -60,7 +60,7 @@ class SSrGE():
         self.retained_genes = []
         self.retained_snvs = []
 
-        self.nb_ranked_genes = nb_ranked_genes
+        self.nb_ranked_features = nb_ranked_features
 
         self.snv_index = dict(enumerate(snv_id_list))
         self.gene_index = dict(enumerate(gene_id_list))
@@ -151,17 +151,19 @@ class SSrGE():
             only_nonzero=True).run()
 
         self._process_computed_coefs(coefs, g_index, intercepts)
+        self._rank_eeSNVs()
         self._rank_genes()
-        self._select_top_ranked_snvs()
+        self.select_top_ranked_features()
 
-    def _select_top_ranked_snvs(self):
+    def select_top_ranked_features(self, nb_ranked_features=None):
         """ """
-        self.retained_genes = [gene for gene, score in
-                               self.genes_ranked[:self.nb_ranked_genes]]
-        self.retained_snvs = []
+        if not nb_ranked_features:
+            nb_ranked_features=self.nb_ranked_features
 
-        for gene in self.retained_genes:
-            self.retained_snvs += self.gene_snv_dict[gene]
+        self.retained_genes = [gene for gene, score in
+                               self.genes_ranked[:nb_ranked_features]]
+        self.retained_snvs = [snv for snv, score in
+                               self.snvs_ranked[:nb_ranked_features]]
 
     def transform(self, SNV_mat):
         """
