@@ -14,6 +14,9 @@ from tabulate import tabulate
 
 from scipy.sparse import issparse
 
+from warnings import warn
+
+
 import numpy as np
 
 
@@ -30,13 +33,24 @@ def debug():
 
     ssrge = SSrGE(snv_id_list=s_list,
                   gene_id_list=ge_list,
-                  nb_ranked_genes=2,
+                  nb_ranked_features=3,
                   alpha=0.01)
     X_r = ssrge.fit_transform(X, Y)
 
     score = ssrge.score(X,Y)
     print ssrge.retained_snvs
     print ssrge.retained_genes
+
+    ssrge = SSrGE(nb_ranked_features=2,
+                  alpha=0.01)
+
+    X_r = ssrge.fit_transform(X, Y)
+
+    score = ssrge.score(X,Y)
+    print ssrge.retained_snvs
+    print ssrge.retained_genes
+
+    import ipdb;ipdb.set_trace()
 
 
 class SSrGE():
@@ -45,8 +59,8 @@ class SSrGE():
     """
     def __init__(
             self,
-            snv_id_list,
-            gene_id_list,
+            snv_id_list=[],
+            gene_id_list=[],
             nb_ranked_features=None,
             time_limit=TIME_LIMIT,
             min_obs_for_regress=MIN_OBS_FOR_REGRESS,
@@ -56,29 +70,41 @@ class SSrGE():
             alpha=0.1,
             l1_ratio=0.5,
             verbose=True):
-        """ """
+        """
+        input:
+            :gene_id_list: list of genes ids
+            :snv_id_list: list(tuple) <snv ids, gene ids>    the gene ids corresponds
+                                                              to the gene where the given
+                                                              svn is found
+            :nb_ranked_features: int    top ranked features (snvs and genes) to keep
+        """
         self.retained_genes = []
         self.retained_snvs = []
+        self._do_rank_genes = False
+        self._snv_ids_given = False
+        self.snv_index = None
+        self.gene_index = None
+        self.snv_id_dict = None
 
         self.nb_ranked_features = nb_ranked_features
 
-        self.snv_index = dict(enumerate(snv_id_list))
-        self.gene_index = dict(enumerate(gene_id_list))
+        if list(snv_id_list):
+            try:
+                assert(all(len(snv) == 2 for snv in snv_id_list))
+            except Exception:
+                warn('snv_id_list given but not conform and cannot be used.'\
+                     'to rank gene_id_list.'\
+                     '\ncorrect format: :snv_id_list: list(tuple) <snv ids, gene ids>')
+            else:
+                self._do_rank_genes = True
+                self._snv_ids_given = True
 
-        self.snv_id_dict = {name: pos
-                            for pos, name in self.snv_index.iteritems()}
-        self.gene_id_dict = {name: pos
-                            for pos, name in self.gene_index.iteritems()}
-
-        self.gene_snv_dict = defaultdict(list)
+        self._create_dicts(snv_id_list, gene_id_list)
 
         self.snvs_ranked = [] # list of tupe (snv, score)
         self.genes_ranked = [] # list of tupe (gene, score)
 
         self.gene_weights = None
-
-        for gene, ids in snv_id_list:
-            self.gene_snv_dict[gene].append((gene, ids))
 
         self.time_limit = time_limit
         self.min_obs_for_regress = min_obs_for_regress
@@ -109,6 +135,14 @@ class SSrGE():
             self.model = model
             self.model_params = model_params
 
+    def _create_dicts(self, snv_id_list, gene_id_list):
+        """ """
+        self.snv_index = dict(enumerate(snv_id_list))
+        self.gene_index = dict(enumerate(gene_id_list))
+
+        self.snv_id_dict = {name: pos
+                            for pos, name in self.snv_index.iteritems()}
+
     def fit(self, SNV_mat, GE_mat, to_dense=False):
         """
         infer eeSNV by fitting sparse linear models using SNV as features
@@ -129,6 +163,11 @@ class SSrGE():
         self.SNV_mat_shape = SNV_mat.shape
         self.GE_mat_shape = GE_mat.shape
 
+        if not self._snv_ids_given:
+            self._create_dicts(range(self.SNV_mat_shape[1]),
+                               range(self.GE_mat_shape[0]))
+
+        assert(self.SNV_mat_shape[0] == self.GE_mat_shape[1])
         assert(self.SNV_mat_shape[0] == self.GE_mat_shape[1])
 
         if issparse(GE_mat):
@@ -152,7 +191,10 @@ class SSrGE():
 
         self._process_computed_coefs(coefs, g_index, intercepts)
         self._rank_eeSNVs()
-        self._rank_genes()
+
+        if self._do_rank_genes:
+            self._rank_genes()
+
         self.select_top_ranked_features()
 
     def select_top_ranked_features(self, nb_ranked_features=None):

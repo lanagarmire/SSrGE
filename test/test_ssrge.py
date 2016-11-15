@@ -36,6 +36,41 @@ class TestPackage(unittest.TestCase):
 
         self.assertTrue(snv_ranked)
 
+        score = ssrge.score(X,Y)
+
+        self.assertTrue(score[0] < score[1])
+
+    def test_ssrge_rank_gene(self):
+        """test ssrge and rank genes and snvs"""
+        from garmire_SSrGE.examples import create_example_matrix_v2
+        from garmire_SSrGE.ssrge import SSrGE
+
+        X, Y, gene_id_list, snv_id_list = create_example_matrix_v2()
+        ssrge = SSrGE(
+            snv_id_list=snv_id_list,
+            gene_id_list=gene_id_list,
+            nb_ranked_features=2,
+            alpha=0.01)
+
+        ssrge.fit(X, Y)
+        self.assertTrue(ssrge.eeSNV_weight)
+
+        Xr = ssrge.transform(X)
+
+        self.assertTrue(Xr.sum())
+        self.assertTrue(Xr.shape[0] == X.shape[0])
+        self.assertTrue(Xr.shape[1] < X.shape[1])
+
+        snv_ranked = ssrge.rank_eeSNVs()
+
+        self.assertTrue(snv_ranked)
+
+        self.assertTrue(len(ssrge.retained_snvs) == ssrge.nb_ranked_features)
+        self.assertTrue(len(ssrge.retained_genes) == ssrge.nb_ranked_features)
+
+        score = ssrge.score(X,Y)
+
+        self.assertTrue(score[0] < score[1])
 
     def test_cross_validation(self):
         """test cross validation procedure"""
