@@ -23,29 +23,8 @@ pip install -r requirements.txt --user
 * Python libraries (automatically installed with the pip install command):
   * Numpy
   * Scipy
-  * [Scikit-learn](http://scikit-learn.org/)
+  * [Scikit-learn](http://scikit-learn.org/) (version = 0.18)
   * tabulate
-
-* To extract SNV and Gene expression matrices from RNA-seq dataset, it is required to:
-  * define the corresponding .gtf file of the project (reference gene annotation)
-  * For each sample:
-    * have raw gene expression inferred by featureCounts, in a single file present in a distinct folder, named according to the sample Id.
-    * have VCF file, corresponding to the inferred SNV in a single file present in a distinct folder, named according to the sample Id.
-    * The first fields of the .vcf files should correspond to the following example:
-
-      ```text
-      chrID     start   SNVid       original    new           score     validSNV
-      chrM    12883   rs23245       C       T       12122.77        PASS
-      ```
-
-  * all the folders containing the gene expression matrices must be in a distinct folder
-  * all the folders containing the VCF files must be in a distinct folder
-
-* The data extraction procedure is particularly well suited for data produced using [garmire_SNV_calling](https://github.com/lanagarmire/SNV_calling) package
-
-## configuration
-All the project variables can be defined into the config file (./garmire_SSrGE/config.py). Also, when using directly python class instances, one could access to variables and functions description using the interactive help (see usage) with ipython.
-
 
 ## usage
 * test SSrGE is functional:
@@ -57,6 +36,8 @@ All the project variables can be defined into the config file (./garmire_SSrGE/c
 
 * Instantiate and fit SSrGE:
 
+SSrGE should be used as a python package, below are usage example.
+
 ```python
 from garmire_SSrGE.ssrge import SSrGE
 from garmire_SSrGE.examples import create_example_matrix_v1 # create examples matrices
@@ -67,27 +48,27 @@ help(create_example_matrix_v1)
 
 X, Y, W = create_example_matrix_v1()
 
-procedure = SSrGE()
+ssrge = SSrGE()
 
-procedure.fit(X, Y)
+ssrge.fit(X, Y)
 
-score_models, score_null_models = procedure.score(X, Y)
+score_models, score_null_models = ssrge.score(X, Y)
 
-X_r = procedure.transform(X)
+X_r = ssrge.transform(X)
 
 print X_r.shape, X.shape
 
-ranked_feature = procedure.rank_eeSNVs()
+ranked_feature = ssrge.rank_eeSNVs()
 
-procedure_ES = SSrGE(model='ElasticNet', alpha=01, l1_ratio=0.5) # Fitting using sklearn ElasticNet instead
-procedure_ES.fit(X, Y)
+ssrge_ES = SSrGE(model='ElasticNet', alpha=01, l1_ratio=0.5) # Fitting using sklearn ElasticNet instead
+ssrge_ES.fit(X, Y)
 
 ```
 
 * Rank eeSNVs:
 
 ```python
-ranked_feature = procedure.rank_eeSNVs()
+ranked_feature = ssrge.rank_eeSNVs()
 ```
 
 * Performing cross-validation
@@ -108,47 +89,51 @@ GE_mat=Y
 path = cross_val.regularization_path('alpha',  [0.01, 0.1, 0.2])
 ```
 
-## Extract SNV and GE matrices from RNA-seq dataset:
-   Starting from .sra files, one can:
-   * first download .sra files directly from NCBI .soft files using our custom package : [download_ncbi_sra](https://github.com/lanagarmire/download_ncbi_sra.git)
-   * Then, infer eeSNVs using our SNV calling package : [SNV_calling](https://github.com/lanagarmire/SNV_calling.git)
-   * Finally, define the folder locations of the different required inputs:
-      ** .soft file
-      ** .gtf file
-      ** expression matrices folder (same format than output of FeatureCount software)
-      ** vcf folder
-   *once all the variables of the project are defined* into the config file (config.py), perform the test:
+## Use K top-ranked eeSNVs
 
-```bash
-  python test/test_dataset.py -v
-  nosetests -v test/test_dataset.py # alternative using nose
-  pytest test/test_dataset.py -v # alternative using pytest
-  ```
-
-* extract matrices
+Instead of relying on the regularization parameter (alpha), to select the number of eeSNVs. One can specify the `nb_ranked_features` argument to obtain a predefined number of eeSNVs, assuming that nb_ranked_features is lower than the number of eeSNVs obtained with the specified alpha.
 
 ```python
-from garmire_SSrGE.extract_matrices_from_dataset import ExtractMatrix
+ssrge_topk = SSrGE(nb_ranked_features=2)
+X_r_2 = ssrge_topk.fit_transform(X, Y)
 
-help(ExtractMatrix)
+print X_r_2.shape # (100, 2)
 
-extract_matrix = ExtractMatrix()
-
-SNV_mat = extract_matrix.extract_SNV_mat()
-GE_mat = extract_matrix.extract_GE_mat()
 ```
 
-* perform procedures and rank genes and eeSNVs
+## Rank genes using eeSNVs and parse SNV ids
+
+In order to rank genes with eeSNVs, the SSrGE instance must be instantiated with SNV ids and gene ids list.
+
+* the gene id order should correspond to the gene matrix
+* a SNV id should be a tuple containing the gene id harboring the given SNV and a user defined SNV id (genome position for example).
 
 ```python
+gene_id_list_example = ['KRAS', 'HLA-A', 'SPARC']
+snv_id_list_example = [('KRAS', 10220), ('KRAS', 10520), ('SPARC', 0220)]
 
-procedure.fit(SNV_mat, GE_mat)
 
-ranked_eeSNVS = ssrge.rank_eeSNVs(extract_matrix) # instance of ExtractMatrix is required to obtain eeSNV ids and names
+## real example
+from garmire_SSrGE.examples import create_example_matrix_v2
 
-ranked_genes = ssrge.rank_genes(extract_matrix)
+X, Y, gene_id_list, snv_id_list = create_example_matrix_v2()
+
+ssrge = SSrGE(
+      snv_id_list=snv_id_list,
+      gene_id_list=gene_id_list,
+      nb_ranked_features=2,
+      alpha=0.01)
+
+ssrge.fit(X, Y)
+
+print ssrge.ran_genes()
+
 ```
 
 ## contact and credentials
 * Developer: Olivier Poirion (PhD)
 * contact: opoirion@hawaii.edu
+
+## related packages
+* [SNV calling pipeline](https://github.com/lanagarmire/SNV_calling)
+* [NCBI GEO download](https://github.com/lanagarmire/download_ncbi_sra)

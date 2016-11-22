@@ -28,12 +28,25 @@ def create_example_matrix_v2(nb_cells=100, nb_snvs=6, nb_genes=5):
     Four sparse coefs are set into W
     create fake snv list and fake gene list
     """
+    gene_list = ['KRAS',
+                 'HLA-A',
+                 'HLA-B',
+                 'HLA-C',
+                 'SPARC',
+                 'SARAF',
+                 'EIF3K',
+                 'ALDH',
+    ]
+
+
     X = csr_matrix(np.random.random((nb_cells, nb_snvs)))
     W = np.zeros((nb_snvs, nb_genes))
 
-    gene_id_list = range(nb_genes)
+    gene_id_list = [gene_list[i] if i < len(gene_list) else i
+                    for i in range(nb_genes)]
 
-    snv_id_list = [(i, i) if i < nb_genes else (0, i)
+    snv_id_list = [(gene_id_list[i], i)
+                   if i < nb_genes else (gene_id_list[0], i)
                    for i in range(nb_snvs)]
 
     W[0][0] = 5
