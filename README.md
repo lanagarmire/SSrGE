@@ -5,8 +5,8 @@ This procedure aims to fit sparse linear models using a binary matrix (n_samples
 This procedure can be used as dimension reduction/feature selection or feature ranking. It is based on the scikit-learn library and is easy to re-implement. However, the package allows to parallelize the fitting procedures, implements a cross-validation procedure, eeSNVs and gene rankings and can extract SNV and Gene expressions (normalized) matrices from RNA-seq dataset.
 
 SSrGE can be used in stand-alone to reduce any single-cell SNV matrix (raw:single-cell, col: SNV (binary)), using a single-cell gene expression matrix (raw: gene-expression (float), col:single-cell). However, we have developped two additional modules, included in this package, that can be used to download and process RNA-seq data:
-* [download_ncbi_data](https://github.com/lanagarmire/SSrGE/README_download_ncbi_rsa.md): download and extract .sra files from NCBI
-* [SNV_calling](https://github.com/lanagarmire/SSrGE/README_SNV_calling.md): align reads/infer SNVs and infer gene expression matrices from .fastq files.
+* [download_ncbi_data](https://github.com/lanagarmire/SSrGE/blob/master/README_download_ncbi_rsa.md): download and extract .sra files from NCBI
+* [SNV_calling](https://github.com/lanagarmire/SSrGE/blob/master/README_snv_calling.md): align reads/infer SNVs and infer gene expression matrices from .fastq files.
 
 
 ## installation (local)
