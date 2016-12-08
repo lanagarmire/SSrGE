@@ -4,9 +4,9 @@ This procedure aims to fit sparse linear models using a binary matrix (n_samples
 
 This procedure can be used as dimension reduction/feature selection or feature ranking. It is based on the scikit-learn library and is easy to re-implement. However, the package allows to parallelize the fitting procedures, implements a cross-validation procedure, eeSNVs and gene rankings and can extract SNV and Gene expressions (normalized) matrices from RNA-seq dataset.
 
-This package can be used in stand-alone to reduce any single-cell SNV matrix (raw:single-cell, col: SNV (binary)), using a single-cell gene expression matrix (raw: gene-expression (float), col:single-cell). However, we have developped two additional packages that can be used to download and process RNA-seq data:
-* [download_ncbi_data](https://github.com/lanagarmire/download_ncbi_sra): download and extract .sra files from NCBI
-* [SNV_calling](https://github.com/lanagarmire/SNV_calling): align reads/infer SNVs and infer gene expression matrices from .fastq files.
+SSrGE can be used in stand-alone to reduce any single-cell SNV matrix (raw:single-cell, col: SNV (binary)), using a single-cell gene expression matrix (raw: gene-expression (float), col:single-cell). However, we have developped two additional modules, included in this package, that can be used to download and process RNA-seq data:
+* [download_ncbi_data](https://github.com/lanagarmire/SSrGE/README_download_ncbi_rsa.md): download and extract .sra files from NCBI
+* [SNV_calling](https://github.com/lanagarmire/SSrGE/README_SNV_calling.md): align reads/infer SNVs and infer gene expression matrices from .fastq files.
 
 
 ## installation (local)
@@ -30,8 +30,6 @@ pip install -r requirements.txt --user
 * test SSrGE is functional:
 ```bash
   python test/test_ssrge.py -v
-  nosetests -v test/test_ssrge.py # alternative using nose
-  pytest test/test_ssrge.py -v # alternative using pytest
   ```
 
 * Instantiate and fit SSrGE:
