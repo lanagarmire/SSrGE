@@ -1,6 +1,6 @@
-# Download SRA files from NCBI
+# Download SRA files from NCBI (GEO)
 
-This module aims to download and extract SRA files for High-throughput genomic data from NCBI using NCBI .soft file
+This module provides scripts to  download and extract SRA files for High-throughput genomic data from NCBI (GEO portal) using NCBI .soft file
 
 
 ## Requirements

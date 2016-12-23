@@ -2,7 +2,7 @@
 
 This procedure aims to fit sparse linear models using a binary matrix (n_samples x n_SNV) as features matrix and a gene expression matrix (n_genes x n_samples) as response. The procedure infers a sparse linear model (LASSO by default) for each gene (raw in the second matrix) and keeps the non-null inferred coefs.
 
-This procedure can be used as  a dimension reduction/feature selection procedure or as a feature ranking. It is based on the Scikit-Learn library and is easy to re-implement. However, the package allows to parallelize the fitting procedures, implements a cross-validation procedure, performs eeSNVs and gene rankings.
+This procedure can be used as  a dimension reduction/feature selection procedure or as a feature ranking. It is based on the Scikit-Learn library and is easy to re-implement. However, the package allows to parallelize the fitting procedures, implements a cross-validation procedure and performs eeSNVs and gene rankings.
 
 SSrGE can be used as a stand-alone procedure to reduce any SNV matrix (raw:single-cell, col: SNV (binary)), using a gene expression matrix (raw: gene-expression (float), col:single-cell). However, we have developped two additional modules, included in this package, that can be used to download and process RNA-seq data:
 * [download_ncbi_data](https://github.com/lanagarmire/SSrGE/blob/master/README_download_ncbi_rsa.md): download and extract .sra files from NCBI
@@ -18,7 +18,7 @@ pip install -r requirements.txt --user
 ```
 
 ## Requirements
-* Linux/ Unix (not tested) working environment
+* Linux working environment
 * [python 2 (>=2.7)](https://www.python.org/download/releases/2.7.2/)
 * Python libraries (automatically installed with the pip install command):
   * Numpy
