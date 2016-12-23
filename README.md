@@ -1,10 +1,10 @@
 # SSrGE procedure
 
-This procedure aims to fit sparse linear models using a binary matrix (n_samples x n_SNV) as features matrix and a gene expression matrix (n_genes x n_samples) as response. The procedure a infer sparse linear model (LASSO by default) for each gene (raw in the second matrix) and keep the non-null inferred coefs.
+This procedure aims to fit sparse linear models using a binary matrix (n_samples x n_SNV) as features matrix and a gene expression matrix (n_genes x n_samples) as response. The procedure infers a sparse linear model (LASSO by default) for each gene (raw in the second matrix) and keeps the non-null inferred coefs.
 
-This procedure can be used as dimension reduction/feature selection or feature ranking. It is based on the scikit-learn library and is easy to re-implement. However, the package allows to parallelize the fitting procedures, implements a cross-validation procedure, eeSNVs and gene rankings and can extract SNV and Gene expressions (normalized) matrices from RNA-seq dataset.
+This procedure can be used as  a dimension reduction/feature selection procedure or as a feature ranking. It is based on the Scikit-Learn library and is easy to re-implement. However, the package allows to parallelize the fitting procedures, implements a cross-validation procedure, performs eeSNVs and gene rankings.
 
-SSrGE can be used in stand-alone to reduce any single-cell SNV matrix (raw:single-cell, col: SNV (binary)), using a single-cell gene expression matrix (raw: gene-expression (float), col:single-cell). However, we have developped two additional modules, included in this package, that can be used to download and process RNA-seq data:
+SSrGE can be used as a stand-alone procedure to reduce any SNV matrix (raw:single-cell, col: SNV (binary)), using a gene expression matrix (raw: gene-expression (float), col:single-cell). However, we have developped two additional modules, included in this package, that can be used to download and process RNA-seq data:
 * [download_ncbi_data](https://github.com/lanagarmire/SSrGE/blob/master/README_download_ncbi_rsa.md): download and extract .sra files from NCBI
 * [SNV_calling](https://github.com/lanagarmire/SSrGE/blob/master/README_snv_calling.md): align reads/infer SNVs and infer gene expression matrices from .fastq files.
 
@@ -89,7 +89,7 @@ path = cross_val.regularization_path('alpha',  [0.01, 0.1, 0.2])
 
 ## Use K top-ranked eeSNVs
 
-Instead of relying on the regularization parameter (alpha), to select the number of eeSNVs. One can specify the `nb_ranked_features` argument to obtain a predefined number of eeSNVs, assuming that nb_ranked_features is lower than the number of eeSNVs obtained with the specified alpha.
+Instead of relying on the regularization parameter (alpha), to select the number of eeSNVs, the `nb_ranked_features` argument can be specified to abotained a fixed  number of eeSNVs (assuming that nb_ranked_features is lower than the number of eeSNVs obtained with the specified alpha).
 
 ```python
 ssrge_topk = SSrGE(nb_ranked_features=2)
@@ -99,7 +99,7 @@ print X_r_2.shape # (100, 2)
 
 ```
 
-## Rank genes using eeSNVs and parse SNV ids
+## Ranking genes using eeSNVs and providing SNV ids
 
 In order to rank genes with eeSNVs, the SSrGE instance must be instantiated with SNV ids and gene ids list.
 
@@ -131,7 +131,3 @@ print ssrge.ran_genes()
 ## contact and credentials
 * Developer: Olivier Poirion (PhD)
 * contact: opoirion@hawaii.edu
-
-## related packages
-* [SNV calling pipeline](https://github.com/lanagarmire/SNV_calling)
-* [NCBI GEO download](https://github.com/lanagarmire/download_ncbi_sra)
