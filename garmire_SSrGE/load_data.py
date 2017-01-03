@@ -5,7 +5,7 @@
 from garmire_SSrGE.config import PROJECT_PATH
 from garmire_SSrGE.config import SOFT_PATH
 
-from garmire_SSrGE.generate_refgenome_index import SAVE_PATH as PATH_INDEX
+from garmire_SSrGE.generate_refgenome_index import INDEX_SAVE_PATH
 from garmire_SSrGE.generate_refgenome_index import main as generate_refgenome
 
 import cPickle
@@ -17,7 +17,7 @@ from os.path import isfile
 from collections import defaultdict
 
 
-def load_indexes(path_indexes=PATH_INDEX):
+def load_indexes(path_indexes=INDEX_SAVE_PATH):
     t = time()
 
     if not isfile(path_indexes + 'index_start.pickle'):
@@ -34,22 +34,6 @@ def load_indexes(path_indexes=PATH_INDEX):
     print 'gene position indexes loaded in {0} s'.format(time() - t)
     return index_start, index_end, position_index
 
-def load_aligner_unique_read():
-    """ """
-    f_path = "{0}/aligner_unique_read.csv".format(PROJECT_PATH)
-    read_dict =  dict([l.strip('\n').split(';')
-                       for l in open(f_path, 'r')])
-
-    for key in read_dict:
-        read_dict[key] = float(read_dict[key])
-
-    return read_dict
-
-def load_deduplicated_check():
-    """ """
-    f_path = "{0}/deduplicated_check.csv".format(PROJECT_PATH)
-    return dict([l.strip('\n').split(';')
-                 for l in open(f_path, 'r')])
 
 def process_line_from_vcf_file(line):
     """ process one line from the svf file"""
@@ -72,20 +56,23 @@ def process_line_from_vcf_file(line):
     end = start
     return chrid, start, end, snv_id
 
-def load_gsm_and_sample_names_from_soft():
+def load_gsm_and_sample_names_from_soft(soft_path=SOFT_PATH):
     """
     load GSM and sample names from soft
 
     return:
         dict(GSM:sample name)
     """
+    if not soft_path:
+        return defaultdict(str)
+
     regex_gsm = re.compile("(?<=\^SAMPLE = )GSM[0-9]+")
     regex_name = re.compile("(?<=!Sample_title = ).+(?=\n)")
 
-    if not isfile(SOFT_PATH):
+    if not isfile(soft_path):
         return {}
 
-    read = open(SOFT_PATH, 'r').read()
+    read = open(soft_path, 'r').read()
 
     gsms = regex_gsm.findall(read)
     names = regex_name.findall(read)

@@ -1,3 +1,9 @@
+from garmire_SNV_calling.config import ANNOTATION_PATH
+from garmire_SNV_calling.config import PATH_OUTPUT as PROJECT_PATH
+from garmire_SNV_calling.config import SOFT_PATH as SNV_CALLING_SOFT_PATH
+from garmire_SNV_calling.config import MATRIX_OUTPUT_PATH
+from garmire_SNV_calling.config import OUTPUT_PATH_SNV
+
 """
 CONFIG file for SSrGE
 
@@ -19,3 +25,24 @@ NB_THREADS = 4
 CROSS_VAL_NFOLD = 5
 # Number of folds to perform the cross validation
 ######################################################
+
+
+##################################### vcf and ecpression data #######################
+EXPRESSION_MATRIX_FOLDER_PATH = '{0}/STAR/'.format(MATRIX_OUTPUT_PATH)
+# the path for the folders containing the expression matrix files
+# one folder per single cell and each folder contains a unique expression matrix (.txt) file
+GENE_MATRIX_NAME = 'matrix_counts.txt'
+# the name of the file containing the expression matrix inside single-cell each folder
+VCF_FOLDER_PATH = '{0}/data/'.format(OUTPUT_PATH_SNV)
+# the path for the folders containing the .vcf files
+# one folder per single cell and each single-cell folder contains a unique .vcf file
+VCF_NAME = 'snv_filtered.vcf'
+# the name of the file containing the vcf inside each folder
+INDEX_SAVE_PATH = "{0}/gtf_index/".format(PROJECT_PATH)
+# path to save tyhe GTF index
+# can be changed to a localpath
+GTF_PATH = ANNOTATION_PATH
+# path used in the SNV_calling module
+# can be changed to a localpath
+SOFT_PATH = SNV_CALLING_SOFT_PATH # OPTIONNAL, path of the .soft file from ncbi
+######################################################################################
