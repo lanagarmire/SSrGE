@@ -34,7 +34,6 @@ def load_indexes(path_indexes=INDEX_SAVE_PATH):
     print 'gene position indexes loaded in {0} s'.format(time() - t)
     return index_start, index_end, position_index
 
-
 def process_line_from_vcf_file(line):
     """ process one line from the svf file"""
 

@@ -166,6 +166,14 @@ STAR
 
 (matrix_counts.txt.summary is not used and were created by the previous analysis)
 
+* The format of the expression files supported is the following:
+
+```bash
+
+#gene_name    chromsomes    starting position    ending position    additionnal columns    gene expression
+MIR6859-3    chr1;chr15;chr16    17369;102513727;67052   17436;102513794;67119   ...    200
+```
+
 * variables (paths and file names) specific to GE and SNV matrix extraction can be defined in the config file: garmire_SSrGE/config.py
 * First, a GTF index must be created:
 
