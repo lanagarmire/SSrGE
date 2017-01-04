@@ -3,6 +3,8 @@ from garmire_SSrGE.load_data import load_gsm_and_sample_names_from_soft
 
 from garmire_SSrGE.config import EXPRESSION_MATRIX_FOLDER_PATH
 from garmire_SSrGE.config import VCF_FOLDER_PATH
+from garmire_SSrGE.config import GENE_MATRIX_NAME
+from garmire_SSrGE.config import VCF_NAME
 
 from sklearn.feature_extraction import DictVectorizer
 
@@ -49,21 +51,43 @@ class ExtractMatrix():
                  min_shared_snv=None,
                  min_gene_expr=None,
                  min_average_gene_expr=2,
+                 vcf_folder_path=VCF_FOLDER_PATH,
+                 expression_matrix_folder_path=EXPRESSION_MATRIX_FOLDER_PATH,
+                 gene_matrix_name=GENE_MATRIX_NAME,
+                 vcf_name=VCF_NAME,
                  limit=None):
         """
         :min_shared_snv: int    min number of cells sharing a given snv
         :min_gene_expr: float    min number of gene expression value
         :min_average_gene_expr: float    min number of average gene expression value
                                          on average
+        :vcf_folder_path: path to vcf folders (one folder per single cell)
+        :expression_matrix_folder_path: path to expression matrices folders (one folder per single cell)
+        :gene_matrix_name: name of the gene expression file for each SC folder
+        :vcf_name: name of the .vcf file for each SC folder
         """
+        self.vcf_folder_path = vcf_folder_path
+        self.expression_matrix_folder_path = expression_matrix_folder_path
+        self.gene_matrix_name = gene_matrix_name
+        self.vcf_name = vcf_name
+
         self.min_shared_snv = min_shared_snv
         self.min_gene_expr = min_gene_expr
         self.min_average_gene_expr = min_average_gene_expr
 
-        samples_with_vcf = set(listdir(VCF_FOLDER_PATH))
-        samples_with_ge_mat = set(listdir(EXPRESSION_MATRIX_FOLDER_PATH))
+        samples_with_vcf = set()
+        samples_with_ge_mat = set()
 
-        self.samples = list(samples_with_vcf.intersection(samples_with_ge_mat))
+        if self.vcf_folder_path:
+            samples_with_vcf = set(listdir(self.vcf_folder_path))
+
+        if self.expression_matrix_folder_path:
+            samples_with_ge_mat = set(listdir(self.expression_matrix_folder_path))
+
+        if samples_with_vcf and samples_with_ge_mat:
+            self.samples = list(samples_with_vcf.intersection(samples_with_ge_mat))
+        else:
+            self.samples = list(samples_with_vcf.union(samples_with_ge_mat))
 
         if limit:
             self.samples = self.samples[:limit]
@@ -71,7 +95,12 @@ class ExtractMatrix():
         self.samples_snv_dict = {}
         self.samples_ge_dict = {}
 
-        self.extract_data = ExtractData()
+        self.extract_data = ExtractData(
+            vcf_folder_path=self.vcf_folder_path,
+            expression_matrix_folder_path=self.expression_matrix_folder_path,
+            gene_matrix_name=self.gene_matrix_name,
+            vcf_name=self.vcf_name)
+
         self.gsm_to_name = load_gsm_and_sample_names_from_soft()
         self.names = []
 
@@ -92,6 +121,9 @@ class ExtractMatrix():
         return:
             :SNV_mat: Matrix (n_samples x n_SNVs)
         """
+
+        if not self.vcf_folder_path:
+            return None
 
         i = 0
 
@@ -132,7 +164,6 @@ class ExtractMatrix():
 
         return f_matrix
 
-
     def extract_GE_mat(self):
         """
         construct GE matrix (n_genes x n_samples),
@@ -141,6 +172,9 @@ class ExtractMatrix():
         return:
             :GE_mat: Matrix  (n_genes x n_samples)
         """
+
+        if not self.expression_matrix_folder_path:
+            return None
 
         i = 0
 

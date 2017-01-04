@@ -22,6 +22,8 @@ def main():
     print 'done in {0} s'.format(time() - t)
     save_indexes(index_start, index_end, position_index)
 
+    return True
+
 def save_indexes(index_start,
                  index_end,
                  position_index,

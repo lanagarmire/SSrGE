@@ -28,10 +28,21 @@ def debug():
     """ DEBUG """
     extract_data = ExtractData()
 
+
 class ExtractData():
     """ """
-    def __init__(self):
+    def __init__(
+            self,
+            expression_matrix_folder_path=EXPRESSION_MATRIX_FOLDER_PATH,
+            gene_matrix_name=GENE_MATRIX_NAME,
+            vcf_folder_path=VCF_FOLDER_PATH,
+            vcf_name=VCF_NAME):
         """ """
+        self.expression_matrix_folder_path = expression_matrix_folder_path
+        self.gene_matrix_name = gene_matrix_name
+        self.vcf_folder_path = vcf_folder_path
+        self.vcf_name = vcf_name
+
         self.index = None
         self.position_index = None
         self.index_start = None
@@ -136,7 +147,7 @@ class ExtractData():
             :folder: str    id of the sample
         """
         f_path = "{0}/{1}/{2}".format(
-            VCF_FOLDER_PATH, folder, VCF_NAME)
+            self.vcf_folder_path, folder, self.vcf_name)
 
         return self.load_snv_from_vcf_file(f_path)
 
@@ -149,7 +160,7 @@ class ExtractData():
             :folder: str    id of the sample
         """
         f_path = "{0}/{1}/{2}".format(
-            EXPRESSION_MATRIX_FOLDER_PATH, folder, GENE_MATRIX_NAME)
+            self.expression_matrix_folder_path, folder, self.gene_matrix_name)
 
         fpkm_dict = self.load_expression_profile_from_file(f_path)
 

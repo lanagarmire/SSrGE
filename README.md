@@ -128,6 +128,71 @@ print ssrge.ran_genes()
 
 ```
 
+## create SNV and GE matrices from .VCF files and gene expression files
+
+It is possible to create an SNV matrix using preexisting .vcf files and also a Gene expression matrix using expression files.
+
+Each cell must have a distinct .vcf file with a unique name (e.g. snv_filtered.vcf) inside a unique folder, specific of the cell, with the name of the cells:
+
+* example:
+
+```bash
+
+data
+|-- GSM2259781__SRX1999927__SRR3999457
+|   |-- snv_filtered.vcf
+|   `-- stdout.log
+`-- GSM2259782__SRX1999928__SRR3999458
+    |-- snv_filtered.vcf
+    `-- stdout.log
+
+```
+
+(stdout.log is not used and were created by the previous analysis)
+
+and similarly for the gene expression files (matrix_counts.txt):
+
+```bash
+
+STAR
+|-- GSM2259781__SRX1999927__SRR3999457
+|   |-- matrix_counts.txt
+|   `-- matrix_counts.txt.summary
+`-- GSM2259782__SRX1999928__SRR3999458
+    |-- matrix_counts.txt
+    `-- matrix_counts.txt.summary
+
+```
+
+(matrix_counts.txt.summary is not used and were created by the previous analysis)
+
+* variables (paths and file names) specific to GE and SNV matrix extraction can be defined in the config file: garmire_SSrGE/config.py
+* First, a GTF index must be created:
+
+```bash
+python ./garmire_SSrGE/generate_refgenome_index.py
+```
+
+* Once the index generated, the matrices can be genereated easily:
+
+```python
+
+extract_matrix = ExtractMatrix()
+
+help(extract_matrix)
+
+SNV_mat = extract_matrix.extract_SNV_mat()
+GE_mat = extract_matrix.extract_GE_mat()
+
+```
+
+to test all the extraction workflow:
+
+```bash
+python ./test/test_extract_matrices.py -v
+```
+
+
 ## contact and credentials
 * Developer: Olivier Poirion (PhD)
 * contact: opoirion@hawaii.edu
