@@ -41,6 +41,8 @@ def debug():
     print ssrge.retained_snvs
     print ssrge.retained_genes
 
+    print ssrge.rank_features_for_a_subgroup(range(40))
+
     ssrge = SSrGE(nb_ranked_features=2,
                   alpha=0.01)
 
@@ -49,8 +51,6 @@ def debug():
     score = ssrge.score(X,Y)
     print ssrge.retained_snvs
     print ssrge.retained_genes
-
-    import ipdb;ipdb.set_trace()
 
 
 class SSrGE():
@@ -112,6 +112,8 @@ class SSrGE():
         self.nb_threads = nb_threads
 
         self.eeSNV_weight = None # total eeSNV absolute weight
+        self.SNV_mat = None # fitted SNV_mat
+        self.GE_mat = None # fitted GE_mat
         self.SNV_mat_shape = None # dim of the fitted SNV_mat
         self.GE_mat_shape = None # dim of the GE_mat used as predicat
         self.eeSNV_index = None # eeSNV index
@@ -197,6 +199,9 @@ class SSrGE():
             self._rank_genes()
 
         self.select_top_ranked_features()
+
+        self.SNV_mat = SNV_mat
+        self.GE_mat = GE_mat
 
     def select_top_ranked_features(self, nb_ranked_features=None):
         """ """
@@ -346,6 +351,37 @@ class SSrGE():
                                   key=lambda x:x[1],
                                   reverse=True)
         return self.genes_ranked
+
+    def rank_features_for_a_subgroup(self, sample_id_list):
+        """
+        Rank the eeSNVs and the genes for a given subgroup of samples
+
+        input:
+            :sample_id_list: id of samples of interest
+                             example [1,5,10] => group with samples 1, 5 and 10
+        """
+        SNV_mat_sub = self.SNV_mat[sample_id_list]
+
+        eeSNV_weights = Counter({key: SNV_mat_sub.T[key].sum() * self.eeSNV_weight[key]
+                                 for key in self.eeSNV_weight})
+
+        gene_weights = Counter()
+
+        for snv_i, score in eeSNV_weights.iteritems():
+            gene, pos = self.snv_index[snv_i]
+            gene_weights[gene] += score
+
+        genes_ranked = sorted(gene_weights.iteritems(),
+                              key=lambda x:x[1],
+                              reverse=True)
+
+        eeSNV_ranked = sorted({self.snv_index[key]: eeSNV_weights[key]
+                               for key in eeSNV_weights}.iteritems(),
+                              key=lambda x:x[1],
+                              reverse=True)
+
+        return eeSNV_ranked, genes_ranked
+
 
 
 if __name__ == "__main__":
