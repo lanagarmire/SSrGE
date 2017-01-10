@@ -16,6 +16,8 @@ from scipy.sparse import issparse
 
 from warnings import warn
 
+from sys import stdout
+
 
 import numpy as np
 
@@ -243,16 +245,25 @@ class SSrGE():
         self.eeSNV_index = list(set([key for coef in coefs for key in coef.iterkeys()]))
         self.eeSNV_index = {self.eeSNV_index[i]: i for i in range(len(self.eeSNV_index))}
 
-        self.eeSNV_weight = Counter()
+        self.eeSNV_weight = defaultdict(float)
         self.intercepts = {}
         self.coefs = {}
 
+        i = 0
+        length = len(coefs)
+
         for counter, gene, intercept in zip(coefs, g_index, intercepts):
-            self.eeSNV_weight += counter
+            for key, count in counter.iteritems():
+                self.eeSNV_weight[key] += count
 
             if counter:
                 self.intercepts[gene] = intercept
                 self.coefs[gene] = counter
+
+            i += 1
+
+            stdout.write('\r {0:.2f} / 100'.format(i / length * 100))
+            stdout.flush()
 
     def score(self, SNV_mat, GE_mat):
         """
@@ -360,9 +371,10 @@ class SSrGE():
             :sample_id_list: id of samples of interest
                              example [1,5,10] => group with samples 1, 5 and 10
         """
-        SNV_mat_sub = self.SNV_mat[sample_id_list]
+        SNV_mat_sub = self.SNV_mat[sample_id_list].todense()
 
-        eeSNV_weights = Counter({key: SNV_mat_sub.T[key].sum() * self.eeSNV_weight[key]
+        eeSNV_weights = Counter({key: SNV_mat_sub.T[key].sum() * self.eeSNV_weight[key]\
+                                 / len(sample_id_list)
                                  for key in self.eeSNV_weight})
 
         gene_weights = Counter()
