@@ -43,7 +43,7 @@ def debug():
     print ssrge.retained_snvs
     print ssrge.retained_genes
 
-    print ssrge.rank_features_for_a_subgroup(range(40))
+    subgroup = ssrge.rank_features_for_a_subgroup(range(10))
 
     ssrge = SSrGE(nb_ranked_features=2,
                   alpha=0.01)
@@ -122,6 +122,8 @@ class SSrGE():
         self.intercepts = None # Intercepts for non null model: {index gene: intercept value}
         self.coefs = None # coefs for non null model: {index gene: coefs dict}
         self.verbose = verbose # whether to print ranking results into the terminal
+        self.eeSNV_CIS_score = defaultdict(float)
+        self.gene_CIS_score = defaultdict(float)
 
         if model == 'LASSO':
             self.model = Lasso
@@ -246,6 +248,8 @@ class SSrGE():
         self.eeSNV_index = {self.eeSNV_index[i]: i for i in range(len(self.eeSNV_index))}
 
         self.eeSNV_weight = defaultdict(float)
+        self.eeSNV_CIS_score = defaultdict(float)
+
         self.intercepts = {}
         self.coefs = {}
 
@@ -256,6 +260,12 @@ class SSrGE():
             for key, count in counter.iteritems():
                 self.eeSNV_weight[key] += count
 
+                if self._snv_ids_given:
+                    genename, pos = self.snv_index[key]
+
+                    if genename == self.gene_index[gene]:
+                        self.eeSNV_CIS_score[self.snv_index[key]] += count
+
             if counter:
                 self.intercepts[gene] = intercept
                 self.coefs[gene] = counter
@@ -264,6 +274,11 @@ class SSrGE():
 
             stdout.write('\r {0:.2f} / 100'.format(i / length * 100))
             stdout.flush()
+
+        # for snv in self.eeSNV_CIS_score:
+        #     self.eeSNV_CIS_score[snv] /= self.eeSNV_weight[self.snv_id_dict[snv]]
+
+        print '\n'
 
     def score(self, SNV_mat, GE_mat):
         """
@@ -352,11 +367,19 @@ class SSrGE():
         """
         rank genes according to the inferred coefs of eeSNVs inferred and present inside
         """
-        self.gene_weights = Counter()
+        self.gene_weights = defaultdict(float)
+        self.gene_CIS_score = defaultdict(float)
 
         for snv_i, score in self.eeSNV_weight.iteritems():
-            gene, pos = self.snv_index[snv_i]
+            snv = self.snv_index[snv_i]
+            gene, pos = snv
             self.gene_weights[gene] += score
+
+            if self._snv_ids_given:
+                self.gene_CIS_score[gene] += self.eeSNV_CIS_score[snv] * score
+
+        # for gene in self.gene_CIS_score:
+        #     self.gene_CIS_score[gene] /= self.gene_weights[gene]
 
         self.genes_ranked = sorted(self.gene_weights.iteritems(),
                                   key=lambda x:x[1],
@@ -370,29 +393,72 @@ class SSrGE():
         input:
             :sample_id_list: id of samples of interest
                              example [1,5,10] => group with samples 1, 5 and 10
+        output:
+            :eeSNV_ranked: list((snvid, score))
+            :gene_ranked: list((gene, score))
+            :gene_weights_distrib: dict(gene)    give the distribution of gene score
+
         """
         SNV_mat_sub = self.SNV_mat[sample_id_list].todense()
+        length = len(sample_id_list)
 
-        eeSNV_weights = Counter({key: SNV_mat_sub.T[key].sum() * self.eeSNV_weight[key]\
-                                 / len(sample_id_list)
-                                 for key in self.eeSNV_weight})
+        for key in self.eeSNV_weight:
+            SNV_mat_sub.T[key] *= self.eeSNV_weight[key]
 
-        gene_weights = Counter()
+        subgroup = SubGroupData()
 
-        for snv_i, score in eeSNV_weights.iteritems():
-            gene, pos = self.snv_index[snv_i]
-            gene_weights[gene] += score
+        for key in self.eeSNV_weight:
+            subgroup.eeSNV_weight[key] = SNV_mat_sub.T[key].sum()
 
-        genes_ranked = sorted(gene_weights.iteritems(),
-                              key=lambda x:x[1],
-                              reverse=True)
+        for snv_i, score in subgroup.eeSNV_weight.iteritems():
+            snv = self.snv_index[snv_i]
+            gene, pos = snv
+            subgroup.gene_weights[gene] += score / length
+            subgroup.gene_CIS_score[gene] += score / length * self.eeSNV_CIS_score[snv]
 
-        eeSNV_ranked = sorted({self.snv_index[key]: eeSNV_weights[key]
-                               for key in eeSNV_weights}.iteritems(),
-                              key=lambda x:x[1],
-                              reverse=True)
+            for cell_i in xrange(SNV_mat_sub.shape[0]):
+                subgroup.snv_weights_list[cell_i][snv] = SNV_mat_sub[cell_i, snv_i]
+                subgroup.gene_weights_list[cell_i][gene] += SNV_mat_sub[cell_i, snv_i]
 
-        return eeSNV_ranked, genes_ranked
+        for gene in subgroup.gene_CIS_score:
+            subgroup.gene_CIS_score[gene] /= subgroup.gene_weights[gene]
+
+        subgroup.genes_ranked = sorted(subgroup.gene_weights.iteritems(),
+                                       key=lambda x:x[1],
+                                       reverse=True)
+        subgroup.eeSNV_ranked = sorted({self.snv_index[key]: subgroup.eeSNV_weight[key] / length
+                                        for key in subgroup.eeSNV_weight}.iteritems(),
+                                       key=lambda x:x[1],
+                                       reverse=True)
+
+        for cell_i in subgroup.gene_weights_list:
+            for gene in subgroup.gene_weights_list[cell_i]:
+                subgroup.gene_weights_distrib[gene].append(
+                    subgroup.gene_weights_list[cell_i][gene])
+
+            for snv in subgroup.snv_weights_list[cell_i]:
+                subgroup.snv_weights_distrib[snv].append(
+                    subgroup.snv_weights_list[cell_i][snv])
+
+        return subgroup
+
+
+class SubGroupData():
+    """
+    class containing data for a given subgroup
+    """
+    def __init__(self):
+        """ """
+        self.gene_weights = defaultdict(float)
+        self.gene_CIS_score = defaultdict(float)
+        self.eeSNV_weight = defaultdict(float)
+        self.gene_weights_list = defaultdict(Counter)
+        self.snv_weights_list = defaultdict(Counter)
+        self.gene_weights_distrib = defaultdict(list)
+        self.snv_weights_distrib = defaultdict(list)
+        self.genes_ranked = []
+        self.eeSNV_ranked = []
+
 
 
 

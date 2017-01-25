@@ -72,6 +72,15 @@ class TestPackage(unittest.TestCase):
 
         self.assertTrue(score[0] < score[1])
 
+        (snv_ranked,
+         gene_ranked,
+         gene_distrib,
+         cis_score) = ssrge.rank_features_for_a_subgroup(range(10))
+
+        first_gene = gene_ranked[0][0]
+
+        self.assertTrue(len(gene_distrib[first_gene]) == 10)
+
     def test_cross_validation(self):
         """test cross validation procedure"""
 
