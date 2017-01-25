@@ -275,8 +275,8 @@ class SSrGE():
             stdout.write('\r {0:.2f} / 100'.format(i / length * 100))
             stdout.flush()
 
-        # for snv in self.eeSNV_CIS_score:
-        #     self.eeSNV_CIS_score[snv] /= self.eeSNV_weight[self.snv_id_dict[snv]]
+        for snv in self.eeSNV_CIS_score:
+            self.eeSNV_CIS_score[snv] /= self.eeSNV_weight[self.snv_id_dict[snv]]
 
         print '\n'
 
@@ -378,8 +378,8 @@ class SSrGE():
             if self._snv_ids_given:
                 self.gene_CIS_score[gene] += self.eeSNV_CIS_score[snv] * score
 
-        # for gene in self.gene_CIS_score:
-        #     self.gene_CIS_score[gene] /= self.gene_weights[gene]
+        for gene in self.gene_CIS_score:
+            self.gene_CIS_score[gene] /= self.gene_weights[gene]
 
         self.genes_ranked = sorted(self.gene_weights.iteritems(),
                                   key=lambda x:x[1],
