@@ -16,6 +16,7 @@ from garmire_SNV_calling.process_snv_calling import ProcessSNVCalling
 from garmire_SNV_calling.config import NB_PROCESS_SNV as NB_PROCESS
 from garmire_SNV_calling.config import PATH_OUTPUT
 from garmire_SNV_calling.config import OUTPUT_PATH_SNV
+from garmire_SNV_calling.config import ARE_READS_BISULFITE
 
 
 
@@ -95,7 +96,11 @@ class TrSNVMultiprocessing(Process):
             else:
                 print "processing for file {0} with id {1}"\
                     .format(patient, self.id)
-                self.process_snv.process(patient)
+
+                if ARE_READS_BISULFITE:
+                    self.process_snv.process_bisulfite(patient)
+                else:
+                    self.process_snv.process(patient)
 
 
 if __name__ == "__main__":

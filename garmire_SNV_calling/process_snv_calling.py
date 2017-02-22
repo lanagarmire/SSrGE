@@ -9,6 +9,8 @@ from os.path import getsize
 from subprocess import Popen
 from subprocess import PIPE
 
+from glob import glob
+
 from distutils.dir_util import mkpath
 from shutil import rmtree
 from shutil import copyfile
@@ -31,11 +33,19 @@ from garmire_SNV_calling.config import ORGANISM
 from garmire_SNV_calling.config import REF_GENOME
 from garmire_SNV_calling.config import DBSNP
 from garmire_SNV_calling.config import VCF_RESOURCES
+from garmire_SNV_calling.config import USED_ALIGNER
+from garmire_SNV_calling.config import SPECIFIC_FILENAME_PATTERN
+from garmire_SNV_calling.config import PERL
+from garmire_SNV_calling.config import BSSNPER
 
 
-############ VARIABLES ################
-SRR_TO_PROCESS = "" # for debug purpose
-#######################################
+def main():
+    """ """
+    process_snv = ProcessSNVCalling(clean_tmp=False)
+    process_snv._init_process(SPECIFIC_FILENAME_PATTERN)
+    process_snv._launch_bs_caller()
+    process_snv._finish_process_bs()
+    # process_snv.process_bisulfite(SPECIFIC_FILENAME_PATTERN)
 
 
 class ProcessSNVCalling():
@@ -55,9 +65,9 @@ class ProcessSNVCalling():
         self.clean_tmp = clean_tmp
         self.srr_to_process = None
 
-    def process(self, srr_to_process=SRR_TO_PROCESS):
+    def process(self, srr_to_process=SPECIFIC_FILENAME_PATTERN):
         """
-        process one star bam file with snv calling pipeline
+        process one  bam file with snv calling pipeline
         """
         self._init_process(srr_to_process)
         self._launch_picard_readgroups()
@@ -70,6 +80,19 @@ class ProcessSNVCalling():
         self._launch_gatk_variant_calling()
         self._launch_gatk_variant_filtering()
         self._finish_process()
+
+    def process_bisulfite(self, srr_to_process=SPECIFIC_FILENAME_PATTERN):
+        """
+        process one  bam file with snv calling pipeline
+        """
+        self._init_process(srr_to_process)
+        self._launch_picard_readgroups()
+        self._launch_picard_markduplicates()
+        self._launch_gatk_cigar()
+        self._launch_gatk_realigner_target_creator()
+        self._launch_gatk_realigner_indel()
+        self._launch_bs_caller()
+        self._finish_process_bs()
 
     def _init_process(self, srr_to_process):
         """mk tmp folders... """
@@ -95,17 +118,18 @@ class ProcessSNVCalling():
 
         self.stdout.write('\n\n######## file id {0} ########\n'\
                           .format(srr_to_process))
-        star_path = self.path_to_data + "/star/"  + srr_to_process
+        bam_path = '{0}/{1}/{2}/'.format(self.path_to_data, USED_ALIGNER,  srr_to_process)
 
-        if not isfile(star_path + '/Aligned.sortedByCoord.out.bam')\
-                or not getsize(star_path + '/Aligned.sortedByCoord.out.bam'):
-            err = 'error file : {0} not found or empty!'\
-                .format(star_path + '/Aligned.sortedByCoord.out.bam')
+        bam_file = glob(bam_path + '/*.bam')
+
+        if not bam_file or not getsize(bam_file[0]):
+            err = 'error file : no bam file found or empty file at: {0}'\
+                .format(bam_path)
             raise Exception(err)
+        bam_file = bam_file[0]
 
-        copyfile("{0}/Aligned.sortedByCoord.out.bam".format(star_path),
-                 "{0}/Aligned.sortedByCoord.out.bam".format(self.tmppath))
-
+        copyfile("{0}".format(bam_file),
+                 "{0}/input.bam".format(self.tmppath))
 
     def _finish_process(self):
         """mk res folders... """
@@ -123,6 +147,29 @@ class ProcessSNVCalling():
                       ' ALL PROCESS DONE FOR: {0} in {1} s"'\
                       .format(self.srr_to_process, time() - self.time_start))
 
+    def _finish_process_bs(self):
+        """mk res folders... """
+
+        if not isdir(self.respath):
+            mkpath(self.respath)
+
+        copyfile(self.tmppath + '/snp.candidate.out',
+                 self.respath + '/snp.candidate.out')
+        copyfile(self.tmppath + '/meth.cg',
+                 self.respath  + '/meth.cg')
+        copyfile(self.tmppath + '/meth.chg',
+                 self.respath  + '/meth.chg')
+        copyfile(self.tmppath + '/meth.chh',
+                 self.respath  + '/meth.chh')
+        copyfile(self.tmppath + '/SNP.out',
+                 self.respath  + '/SNP.out')
+        self._run_cmd('echo "#### FINISHED ####'\
+                      ' ALL PROCESS DONE FOR: {0} in {1} s"'\
+                      .format(self.srr_to_process, time() - self.time_start))
+        copyfile(self.tmppath + '/stdout.log',
+                 self.respath + '/stdout.log')
+
+
     def _launch_picard_readgroups(self):
         """
         launch picard AddOrReplaceReadGroups
@@ -132,7 +179,7 @@ class ProcessSNVCalling():
             'echo "\n\n######## LAUNCHING PICARD READGROUPS ########\n"')
 
         cmd = "{0} {1} -jar {2}/picard.jar AddOrReplaceReadGroups" \
-              " I={3}/Aligned.sortedByCoord.out.bam"\
+              " I={3}/input.bam"\
               " O={3}/rg_added_sorted.bam" \
               " SO=coordinate" \
               " RGID={4}" \
@@ -369,6 +416,24 @@ class ProcessSNVCalling():
 
         self._run_cmd(cmd)
 
+    def _launch_bs_caller(self):
+        """ """
+        popen("rm {0}/snp.candidate.out".format(self.tmppath)).read()
+        popen("rm {0}/meth.c*".format(self.tmppath)).read()
+        popen("rm {0}/SNP.*".format(self.tmppath)).read()
+
+        self._run_cmd(
+            'echo "\n######## LAUNCHING BS-Snper ########\n"')
+
+        cmd = "{0} {1} --fa {2} --input {3}/realigned.bam --output {3}/snp.candidate.out " \
+              " --methcg {3}/meth.cg --methchg {3}/meth.chg --methchh {3}/meth.chh " \
+              " --minhetfreq 0.1 --minhomfreq 0.85 --minquali 15 --mincover 10 " \
+              " --maxcover 1000 --minread2 2 --errorate 0.02 --mapvalue 20 >{3}/SNP.out" \
+              "  2>{3}/stdout.log" \
+              .format(PERL, BSSNPER, REF_GENOME, self.tmppath)
+
+        self._run_cmd(cmd)
+
     def _run_cmd(self, cmd):
         """run cmd"""
         stdout_read = open(self.tmppath + '/stdout.log', 'r')
@@ -415,3 +480,7 @@ class ProcessSNVCalling():
 
             popen("rm {0}/{1}".format(self.tmppath, to_rm)).read()
             self._run_cmd(cmd)
+
+
+if __name__ == "__main__":
+    main()
