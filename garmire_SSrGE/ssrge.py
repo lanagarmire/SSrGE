@@ -7,6 +7,8 @@ from garmire_SSrGE.config import NB_THREADS
 from sklearn.linear_model import Lasso
 from sklearn.metrics import median_absolute_error
 
+from scipy.stats import fisher_exact
+
 from collections import Counter
 from collections import defaultdict
 
@@ -88,6 +90,7 @@ class SSrGE():
         self.snv_index = None
         self.gene_index = None
         self.snv_id_dict = None
+        self.gene_id_dict = None
 
         self.nb_ranked_features = nb_ranked_features
 
@@ -149,6 +152,8 @@ class SSrGE():
 
         self.snv_id_dict = {name: pos
                             for pos, name in self.snv_index.iteritems()}
+        self.gene_id_dict = defaultdict(str, {name: pos
+                            for pos, name in self.gene_index.iteritems()})
 
     def fit(self, SNV_mat, GE_mat, to_dense=False):
         """
@@ -397,70 +402,130 @@ class SSrGE():
             :eeSNV_ranked: list((snvid, score))
             :gene_ranked: list((gene, score))
             :gene_weights_distrib: dict(gene)    give the distribution of gene score
-
         """
+        gene_weights_list = defaultdict(Counter)
+        snv_weights_list = defaultdict(Counter)
+        exp_gene_weights_list = defaultdict(Counter)
+        exp_snv_weights_list = defaultdict(Counter)
+
+        sample_id_comp = list(set(
+            range(self.SNV_mat.shape[0])).difference(sample_id_list))
+
         SNV_mat_sub = self.SNV_mat[sample_id_list].todense()
-        length = len(sample_id_list)
+        SNV_mat_comp = self.SNV_mat[sample_id_comp].todense()
+        GE_mat_sub = self.GE_mat.T[sample_id_list]
+        GE_mat_comp = self.GE_mat.T[sample_id_comp]
 
         for key in self.eeSNV_weight:
             SNV_mat_sub.T[key] *= self.eeSNV_weight[key]
 
         subgroup = SubGroupData()
 
-        for key in self.eeSNV_weight:
-            subgroup.eeSNV_weight[key] = SNV_mat_sub.T[key].sum()
+        for index, gene in self.gene_index.iteritems():
+            subgroup.gene_expr_distrib[gene] = GE_mat_sub.T[index]
 
-        for snv_i, score in subgroup.eeSNV_weight.iteritems():
+        for snv_i, score in self.eeSNV_weight.iteritems():
             snv = self.snv_index[snv_i]
             gene, pos = snv
-            subgroup.gene_weights[gene] += score / length
-            subgroup.gene_CIS_score[gene] += score / length * self.eeSNV_CIS_score[snv]
+            gene_i = self.gene_id_dict[gene]
 
             for cell_i in xrange(SNV_mat_sub.shape[0]):
-                subgroup.snv_weights_list[cell_i][snv] = SNV_mat_sub[cell_i, snv_i]
-                subgroup.gene_weights_list[cell_i][gene] += SNV_mat_sub[cell_i, snv_i]
+                snv_weights_list[cell_i][snv] = SNV_mat_sub[cell_i, snv_i]
 
-        for gene in subgroup.gene_CIS_score:
-            subgroup.gene_CIS_score[gene] /= subgroup.gene_weights[gene]
+                if gene_i != '':
+                    gene_weights_list[cell_i][gene] += SNV_mat_sub[cell_i, snv_i]
 
-        subgroup.genes_ranked = sorted(subgroup.gene_weights.iteritems(),
-                                       key=lambda x:x[1],
-                                       reverse=True)
-        subgroup.eeSNV_ranked = sorted({self.snv_index[key]: subgroup.eeSNV_weight[key] / length
-                                        for key in subgroup.eeSNV_weight}.iteritems(),
-                                       key=lambda x:x[1],
-                                       reverse=True)
+                if gene_i != '' and GE_mat_sub[cell_i, gene_i]:
+                    exp_snv_weights_list[cell_i][snv] = SNV_mat_sub[cell_i, snv_i]
+                    exp_gene_weights_list[cell_i][gene] += SNV_mat_sub[cell_i, snv_i]
 
-        for cell_i in subgroup.gene_weights_list:
-            for gene in subgroup.gene_weights_list[cell_i]:
+            if gene_i:
+                index_cells_comp = np.nonzero(GE_mat_comp.T[gene_i])[0]
+                subgroup.exp_snv_distrib_comp[snv] = np.array(
+                    SNV_mat_comp.T[snv_i, index_cells_comp])
+
+        for cell_i in snv_weights_list:
+
+            for gene in gene_weights_list[cell_i]:
                 subgroup.gene_weights_distrib[gene].append(
-                    subgroup.gene_weights_list[cell_i][gene])
+                    gene_weights_list[cell_i][gene])
 
-            for snv in subgroup.snv_weights_list[cell_i]:
+            for snv in snv_weights_list[cell_i]:
                 subgroup.snv_weights_distrib[snv].append(
-                    subgroup.snv_weights_list[cell_i][snv])
+                    snv_weights_list[cell_i][snv])
+
+        for cell_i in exp_snv_weights_list:
+            for gene in exp_gene_weights_list[cell_i]:
+                subgroup.exp_gene_weights_distrib[gene].append(
+                    exp_gene_weights_list[cell_i][gene])
+
+            for snv in exp_snv_weights_list[cell_i]:
+                subgroup.exp_snv_weights_distrib[snv].append(
+                    exp_snv_weights_list[cell_i][snv])
+
+        subgroup._get_significant_subgroup_features()
 
         return subgroup
 
-
 class SubGroupData():
     """
-    class containing data for a given subgroup
+    class containing data for a given subgroup of cells
+
+    attribute:
+        :significant_eeSNVs: list of ranked significant eeSNVs with their score
+        :significant_genes: list of ranked significant eeSNVs with their score
+
+        :gene_expr_distrib: distribution of gene expression for each gene
+        :gene_weights_distrib: distribution of gene weights for each gene
+                               (according to the eeSNVs) for the subgroup
+        :snv_weights_distrib: distribution of the eeSNV weights for each eeSNV
+        :exp_gene_weights_distrib: distribution of gene weights for each gene using only,
+                                   for a given gene, the subset of cells expressing the gene
+        :exp_snv_weights_distrib: distribution of eeSNV weights for each eeSNV using only,
+                                   for a given eeSNV, the subset of cells expressing the gene
+                                   related to the eeSNV
     """
     def __init__(self):
         """ """
-        self.gene_weights = defaultdict(float)
-        self.gene_CIS_score = defaultdict(float)
-        self.eeSNV_weight = defaultdict(float)
-        self.gene_weights_list = defaultdict(Counter)
-        self.snv_weights_list = defaultdict(Counter)
+        self.significant_eeSNVs = []
+        self.significant_genes = []
+
+        self.gene_expr_distrib = defaultdict(list)
         self.gene_weights_distrib = defaultdict(list)
         self.snv_weights_distrib = defaultdict(list)
-        self.genes_ranked = []
-        self.eeSNV_ranked = []
+        self.exp_gene_weights_distrib = defaultdict(list)
+        self.exp_snv_weights_distrib = defaultdict(list)
+        self.exp_snv_distrib_comp = defaultdict(list)
 
 
+    def _get_significant_subgroup_features(self, thres=0.05):
+        """ """
+        snv_ranked = []
+        gene_ranked = defaultdict(float)
 
+        for snv in self.snv_weights_distrib:
+            distrib_test = np.asarray(self.exp_snv_weights_distrib[snv]).astype('bool')
+            distrib_ref = np.asarray(self.exp_snv_distrib_comp[snv]).astype('bool')
+
+            key_mean = np.mean(self.exp_snv_weights_distrib[snv])
+            contingency = np.array([[distrib_test.sum(), (distrib_test == False).sum()],
+                                    [distrib_ref.sum(), (distrib_ref == False).sum()],])
+
+            score, pvalue = fisher_exact(contingency)
+
+            if pvalue < thres and distrib_test.mean() > distrib_ref.mean():
+                snv_ranked.append((snv, key_mean, pvalue))
+
+        snv_ranked.sort(key=lambda x:x[1], reverse=True)
+
+        self.significant_eeSNVs = snv_ranked
+
+        for (gene, pos), score, pvalue in snv_ranked:
+            gene_ranked[gene] += score
+
+        self.significant_genes = sorted(gene_ranked.items(),
+                                        key=lambda x:x[1],
+                                        reverse=True)
 
 if __name__ == "__main__":
     debug()
