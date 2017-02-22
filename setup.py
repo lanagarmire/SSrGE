@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-VERSION = '1.3.0'
+VERSION = '1.4.0'
 
 setup(name='garmire_SSrGE',
       version=VERSION,
