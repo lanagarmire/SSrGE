@@ -124,7 +124,24 @@ ssrge = SSrGE(
 
 ssrge.fit(X, Y)
 
-print ssrge.ran_genes()
+print ssrge.rank_genes()
+
+```
+
+## Analyzing a subgroup
+
+Extract specific eeSNVs and impacted genes of a given subgroup. a given eeSNV is specific to a subgroup if it is signficantly more present amongst the cells from the given subgroup:
+
+```python
+
+# Defining as a subgroup the first 6 elements from X
+subgroup = ssrge.rank_features_for_a_subgroup([0, 1, 2, 3, 4, 5])
+
+print subgroup.ranked_genes
+print subgroup.ranked_eeSNVs
+
+print subgroup.significant_genes
+print subgroup.significant_eeSNVs
 
 ```
 

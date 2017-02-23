@@ -20,7 +20,6 @@ from warnings import warn
 
 from sys import stdout
 
-
 import numpy as np
 
 
@@ -399,9 +398,7 @@ class SSrGE():
             :sample_id_list: id of samples of interest
                              example [1,5,10] => group with samples 1, 5 and 10
         output:
-            :eeSNV_ranked: list((snvid, score))
-            :gene_ranked: list((gene, score))
-            :gene_weights_distrib: dict(gene)    give the distribution of gene score
+            :SubGroupData: data container with features specific to the subgroup
         """
         gene_weights_list = defaultdict(Counter)
         snv_weights_list = defaultdict(Counter)
@@ -489,6 +486,8 @@ class SubGroupData():
         """ """
         self.significant_eeSNVs = []
         self.significant_genes = []
+        self.ranked_eeSNVs = []
+        self.ranked_genes = []
 
         self.gene_expr_distrib = defaultdict(list)
         self.gene_weights_distrib = defaultdict(list)
@@ -526,6 +525,16 @@ class SubGroupData():
         self.significant_genes = sorted(gene_ranked.items(),
                                         key=lambda x:x[1],
                                         reverse=True)
+
+        self.ranked_genes = sorted([(gene, np.mean(self.gene_weights_distrib[gene]))
+                                    for gene in self.gene_weights_distrib],
+                                   key=lambda x:x[1],
+                                   reverse=True)
+        self.ranked_eeSNVs = sorted([(snv, np.mean(self.snv_weights_distrib[snv]))
+                                     for snv in self.snv_weights_distrib],
+                                    key=lambda x:x[1],
+                                    reverse=True)
+
 
 if __name__ == "__main__":
     debug()
