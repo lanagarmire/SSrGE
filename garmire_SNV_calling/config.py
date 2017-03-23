@@ -3,15 +3,15 @@ config file for SNV calling pipeline
 
 """
 # Project name. Used to create folder
-PROJECT_NAME = 'jones_pancreatic_cancer'
+PROJECT_NAME = 'hu_scMTseq_2016'
 # type of the dataset (human or mouse). Used to select reference genomes
-CELL_TYPE = 'HUMAN'
+CELL_TYPE = 'MOUSE'
 # valid sequencing machine for picard tools:
 # ILLUMINA, SLX, SOLEXA, SOLID, 454, LS454, COMPLETE, PACBIO,
 # IONTORRE NT, CAPILLARY, HELICOS, UNKNOWN
 PLATEFORM = 'ILLUMINA'
 # Read length used to create star index for reference genome
-STAR_INDEX_READ_LENGTH = 50
+STAR_INDEX_READ_LENGTH = 51
 
 ############ FOLDER ARCHITECTURE  ####################################
 #Alias to define the GLOBAL_DATA_ROOT, OUTPUT_ROOT and PROG_ROOT
@@ -37,6 +37,9 @@ TYPE_VAR = {
         .format(GLOBAL_DATA_ROOT),
         # folder which will contains the STAR index using human genome
         'STAR_INDEX_PATH': "{0}/Illumina_hg19/Sequences/STARindex"\
+        .format(GLOBAL_DATA_ROOT),
+        # folder which will contains the BSSEQ index using human genome
+        'BSSEQ_INDEX_PATH': "{0}/Illumina_hg19/Sequences/BSSEQindex"\
         .format(GLOBAL_DATA_ROOT),
         # human reference fasta (.fa) file
         'REF_GENOME': "{0}/Illumina_hg19/Sequences/WholeGenomeFasta/genome.fa"\
@@ -65,6 +68,9 @@ TYPE_VAR = {
         # folder which will contains the STAR index using mouse genome
         'STAR_INDEX_PATH': "{0}/Mus_musculus/UCSC/mm10/Sequence/STARindex"\
         .format(GLOBAL_DATA_ROOT),
+        # folder which will contains the BS-SEQ index using mouse genome
+        'BSSEQ_INDEX_PATH': "{0}/Mus_musculus/UCSC/mm10/Sequence/BSSEQindex"\
+        .format(GLOBAL_DATA_ROOT),
         # Mouse reference fasta (.fa) file
         'REF_GENOME': "{0}/Mus_musculus/UCSC/mm10/Sequence/WholeGenomeFasta/genome.fa"\
         .format(GLOBAL_DATA_ROOT),
@@ -92,9 +98,10 @@ STAR_INDEX_PATH = TYPE_VAR[CELL_TYPE]['STAR_INDEX_PATH']
 ORGANISM = TYPE_VAR[CELL_TYPE]['ORGANISM']
 DBSNP = TYPE_VAR[CELL_TYPE]['DBSNP']
 VCF_RESOURCES = TYPE_VAR[CELL_TYPE]['VCF_RESOURCES']
+BSSEQ_INDEX_PATH = TYPE_VAR[CELL_TYPE]['BSSEQ_INDEX_PATH']
 ######################################################################
 
-############# DATASET ###############################################
+############# DATASET ################################################
 # Absolute path for fastq files.
 # Fastq files must be organised using one folder for one SRX experiment
 FASTQ_PATH = "{0}/{1}/fastq/".format(GLOBAL_DATA_ROOT, PROJECT_NAME)
@@ -102,11 +109,17 @@ FASTQ_PATH = "{0}/{1}/fastq/".format(GLOBAL_DATA_ROOT, PROJECT_NAME)
 PATH_OUTPUT = "{0}/{1}/".format(OUTPUT_ROOT, PROJECT_NAME)
 #specific string pattern that a folder name must match
 SPECIFIC_FILENAME_PATTERN = ""
-# Used aligner (star / bismark (RRBS read alignment))
-USED_ALIGNER = 'star'
-# Are the reads from the bislufite pipeline ?
+######################################################################
+
+################ RRBS reads specific PREPROCESSING ###################
+# Used aligner (star for reads from gene expression
+# bismark / BS-seeker2 (RRBS read alignment))
+USED_ALIGNER = 'BS-seeker2'
+# Are the reads from the bislufite pipeline for SNV calling?
 ARE_READS_BISULFITE = False
-#####################################################################
+# specific trimming preprocessing for RRBS reads
+DO_TRIMGALORE = True
+######################################################################
 
 ############# SOFTWARE ###############################################
 # Available java version. Must be > 1.8
@@ -119,8 +132,18 @@ GATK_DIR = "{0}/GATK/".format(PROG_ROOT)
 PICARD_DIR = "{0}/picard-tools-2.1.1/".format(PROG_ROOT)
 # Perl
 PERL = 'perl'
+# python
+PYTHON = 'python'
+#BOWTIE ALIGNER (for BSSEEKER and bismark)
+BOWTIE_REP = '/usr/bin/'
+# software for RRBS bisulfite reads preprocessing
+TRIMGALORE_REP = '{0}/TrimGalore/'.format(PROG_ROOT)
+# BSseeker2 software to call methylation reads
+BSSEEKER2_REP = '{0}/BSseeker2/'.format(PROG_ROOT)
 # BS-Snper (SNP calling for bisulfite reads)
 BSSNPER = '{0}/BS-Snper/BS-Snper.pl'.format(PROG_ROOT)
+# bismark software for RRBS alignment
+BISMARK_SOFTWARE = '{0}/Bismark/bismark'.format(PROG_ROOT)
 # STAR aligner software
 PATH_STAR_SOFTWARE = "{0}/STAR/bin/Linux_x86_64_static/STAR"\
                           .format(PROG_ROOT)
