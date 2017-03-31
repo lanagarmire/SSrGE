@@ -103,7 +103,7 @@ class ExtractData():
                 continue
 
             ref_start = bisect(self.position_index['start'][chrid], start)
-            ref_start_list = self.position_index['start'][chrid][ref_start-10:
+            ref_start_list = self.position_index['start'][chrid][max(ref_start-10, 0):
                                                                  ref_start]
             ref_end = bisect(self.position_index['end'][chrid], end)
             ref_end_list = self.position_index['end'][chrid][ref_end:
