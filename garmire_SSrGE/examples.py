@@ -13,7 +13,9 @@ def create_example_matrix_v1(nb_cells=100, nb_snvs=6, nb_genes=5):
     W = np.zeros((nb_snvs, nb_genes))
 
 
+    W[0][1] = 5
     W[0][0] = 5
+    W[1][1] = 5
     W[1][0] = 5
     W[3][3] = 2
     W[5][4] = 6

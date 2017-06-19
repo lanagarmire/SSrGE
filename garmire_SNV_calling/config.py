@@ -3,9 +3,9 @@ config file for SNV calling pipeline
 
 """
 # Project name. Used to create folder
-PROJECT_NAME = 'hu_scMTseq_2016'
+PROJECT_NAME = 'kim_renal_carcinoma'
 # type of the dataset (human or mouse). Used to select reference genomes
-CELL_TYPE = 'MOUSE'
+CELL_TYPE = 'HUMAN'
 # valid sequencing machine for picard tools:
 # ILLUMINA, SLX, SOLEXA, SOLID, 454, LS454, COMPLETE, PACBIO,
 # IONTORRE NT, CAPILLARY, HELICOS, UNKNOWN
@@ -119,6 +119,11 @@ USED_ALIGNER = 'BS-seeker2'
 ARE_READS_BISULFITE = False
 # specific trimming preprocessing for RRBS reads
 DO_TRIMGALORE = True
+######################################################################
+
+######################## MONOVAR #####################################
+MONOVAR_REP = '{0}/monovar/'.format(PROG_ROOT)
+MONOVAR_SAMTOOLS = '{0}/external/samtools/samtools'.format(MONOVAR_REP)
 ######################################################################
 
 ############# SOFTWARE ###############################################
