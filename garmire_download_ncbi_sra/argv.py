@@ -15,10 +15,11 @@ HELP = """
 -FASTQ_DUMP_OPTION\toptions to use to extract the sra (using fastq-dump) "--split-3 -B is the default" and it is strongly recommended to keep it
 -LIMIT\tdefine the maximum number of sra files to be downloaded (default None)
 """
+print('ok')
 
 if argv[1:]:
     if '-h' in argv or '-H' in argv:
-        print HELP
+        print(HELP)
         exit(0)
 
     for arg in filter(lambda x:x[0] == '-', argv):

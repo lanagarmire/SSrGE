@@ -54,7 +54,6 @@ def launch_monovar():
                       fil, fil.rsplit('.', 1)[0])
 
         cmd_list.append(cmd)
-    # import ipdb;ipdb.set_trace()
 
     pool = Pool(THREAD_NB)
     pool.map(_multiprocessing_func, cmd_list)
