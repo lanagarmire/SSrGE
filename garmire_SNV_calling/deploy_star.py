@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import sys
 from fnmatch import fnmatch
 
 from os import popen
@@ -12,14 +11,14 @@ from os.path import getsize
 
 from time import sleep
 from random import random
-from sys import argv
+
 from sys import stdout
 
 from distutils.dir_util import mkpath
 
 from garmire_SNV_calling.config import FASTQ_PATH
-from garmire_SNV_calling.config import OUTPUT_PATH_STAR \
-    as OUTPUT_PATH
+from garmire_SNV_calling.config import OUTPUT_PATH
+from garmire_SNV_calling.config import OUTPUT_PATH_STAR
 from garmire_SNV_calling.config import PATH_STAR_SOFTWARE \
     as PATH_SOFTWARE
 from garmire_SNV_calling.config import STAR_INDEX_PATH
@@ -29,8 +28,12 @@ from garmire_SNV_calling.config import SPECIFIC_FILENAME_PATTERN as PATTERN
 
 
 sleep(2 * random())
+
 if not isdir(OUTPUT_PATH):
     mkpath(OUTPUT_PATH)
+
+if not isdir(OUTPUT_PATH_STAR):
+    mkpath(OUTPUT_PATH_STAR)
 
 
 def main():
@@ -42,26 +45,26 @@ def main():
         if PATTERN and not fnmatch(fil, PATTERN):
             continue
 
-        print "====> file to be aligned:", fil
+        print("====> file to be aligned:", fil)
 
-        if not isdir(OUTPUT_PATH + fil):
-            mkdir(OUTPUT_PATH + fil)
+        if not isdir(OUTPUT_PATH_STAR + fil):
+            mkdir(OUTPUT_PATH_STAR + fil)
 
-        if isfile(OUTPUT_PATH + fil + "/Aligned.sortedByCoord.out.bam") \
-           and getsize(OUTPUT_PATH + fil + "/Aligned.sortedByCoord.out.bam"):
-            print 'bam file result alreay exists for:{0}\nskipping...'\
-                .format(fil)
+        if isfile(OUTPUT_PATH_STAR + fil + "/Aligned.sortedByCoord.out.bam") \
+           and getsize(OUTPUT_PATH_STAR + fil + "/Aligned.sortedByCoord.out.bam"):
+            print('bam file result alreay exists for:{0}\nskipping...'\
+                .format(fil))
             continue
 
         fastq_str = ""
 
         for fastq_fil in listdir(FASTQ_PATH + fil):
-            print fastq_fil
+            print(fastq_fil)
             if fnmatch(fastq_fil, "*.fastq"):
                 fastq_str += "{0}{1}/{2} ".format(FASTQ_PATH, fil, fastq_fil)
 
         if not fastq_str:
-            print 'no fastq file found for:{0}!\nskipping'.format(fil)
+            print('no fastq file found for:{0}!\nskipping'.format(fil))
             continue
 
         star_index_path = "{0}READ{1}".format(STAR_INDEX_PATH.rstrip('/'),
@@ -73,7 +76,7 @@ def main():
               .format(PATH_SOFTWARE,
                       fastq_str,
                       THREADS,
-                      OUTPUT_PATH + fil + "/",
+                      OUTPUT_PATH_STAR + fil + "/",
                       star_index_path
               )
 

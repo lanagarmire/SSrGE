@@ -3,7 +3,7 @@ config file for SNV calling pipeline
 
 """
 # Project name. Used to create folder
-PROJECT_NAME = 'kim_renal_carcinoma'
+PROJECT_NAME = 'chung_notch_2016'
 # type of the dataset (human or mouse). Used to select reference genomes
 CELL_TYPE = 'HUMAN'
 # valid sequencing machine for picard tools:

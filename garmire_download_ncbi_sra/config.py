@@ -10,21 +10,23 @@ from sys import exit
 
 ############ Variables #################################################
 # The name of the project (defining the name of the folder)
-PROJECT_NAME = "tirosh_2016_melanoma"
+PROJECT_NAME = "chung_notch_2016"
 # The absolute path where the project will be created
-PATH_DATA = "/data/opoirion/tirosh_2016_melanoma//"
+PATH_DATA = "/data/opoirion/chung_notch_2016/"
 # and the SRA files downloaded and extracted
 # path toward the .soft file (with the corresponding ftp addresses for the .sra files)
 PATH_SOFT =  "{0}/{1}.soft".format(PATH_DATA, PROJECT_NAME)
 # number of threads to use for downloading rsa files
 NB_THREADS = 4
+# number of CPU to be used to extract the .sra files
+NB_CPU = 4
 # path to the fastq software
 FASTQ_DUMP = "fastq-dump"
 # options to use to extract the sra (using fastqdump)
 # "--split-3 -B is the default" and it is strongly recommended to keep it
 FASTQ_DUMP_OPTION = "--split-3 -B"
 # define the maximum number of sra files to be downloaded
-LIMIT = 4
+LIMIT = None
 ########################################################################
 
 
