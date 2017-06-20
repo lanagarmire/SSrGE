@@ -16,6 +16,8 @@ from random import sample
 from os import remove
 from os import popen
 
+import re
+
 from multiprocessing import Pool
 
 
@@ -61,7 +63,11 @@ def launch_monovar():
 def _multiprocessing_func(cmd):
     """ """
     print('###### command launched:\n{0}\n########'.format(cmd))
+    fil  = re.findall('-f (?P<file>.+?) -b', cmd)[0]
+
     popen(cmd).read()
+
+    print('monovar finished for: {0}').format(fil)
 
 def create_list_file():
     """
