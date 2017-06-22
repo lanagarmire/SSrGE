@@ -17,7 +17,7 @@ from garmire_download_ncbi_sra.config import LIMIT
 from garmire_download_ncbi_sra.config import NB_CPU
 
 
-from multiprocess import Pool
+from multiprocessing import Pool
 
 
 ############ VARIABLE ############

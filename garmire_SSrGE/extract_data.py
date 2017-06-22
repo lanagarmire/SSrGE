@@ -1,16 +1,8 @@
 #! /usr/bin/python
-
-from os import listdir
-
-from os.path import isdir
-from os.path import isfile
-
 from collections import defaultdict
 from collections import Counter
 
-from fnmatch import fnmatch
 from bisect import bisect
-from time import time
 
 import numpy as np
 
@@ -26,7 +18,7 @@ from garmire_SSrGE.load_data import load_indexes
 
 def debug():
     """ DEBUG """
-    extract_data = ExtractData()
+    ExtractData()
 
 
 class ExtractData():
@@ -80,9 +72,6 @@ class ExtractData():
             :vcf_path: path to the vcf file
         """
         self._load_indexes()
-
-        line_nb = sum([1 for l in open(vcf_path, 'r')
-                       if l[0] !='#'])
 
         f_snv = open(vcf_path, 'r')
 
