@@ -16,10 +16,10 @@ from garmire_SSrGE.config import GTF_PATH
 
 def main():
     t = time()
-    print 'loading index...'
+    print('loading index...')
     index_start, index_end = load_indexed_gene_annotations()
     position_index = create_position_indexes(index_start, index_end)
-    print 'done in {0} s'.format(time() - t)
+    print('done in {0} s'.format(time() - t))
     save_indexes(index_start, index_end, position_index)
 
     return True
@@ -42,7 +42,7 @@ def save_indexes(index_start,
         cPickle.dump(index_end, f)
     with open(save_path + 'position_index.pickle', 'w') as f:
         cPickle.dump(position_index, f)
-    print 'data saved'
+    print('data saved')
 
 def create_position_indexes(index_start, index_end):
     """

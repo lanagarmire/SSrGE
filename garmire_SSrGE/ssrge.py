@@ -5,14 +5,14 @@ from garmire_SSrGE.config import MIN_OBS_FOR_REGRESS
 from garmire_SSrGE.config import NB_THREADS
 
 from sklearn.linear_model import Lasso
+from sklearn.linear_model import ElasticNet
+
 from sklearn.metrics import median_absolute_error
 
 from scipy.stats import fisher_exact
 
 from collections import Counter
 from collections import defaultdict
-
-from tabulate import tabulate
 
 from scipy.sparse import issparse
 
@@ -30,30 +30,28 @@ def debug():
     **** Test function ****
 
     """
-    from garmire_SSrGE.examples import create_example_matrix_v2
+    from garmire_SSrGE.examples import create_example_matrix_v4
 
-    X, Y, ge_list, s_list = create_example_matrix_v2()
+    X, Y, C, ge_list, s_list = create_example_matrix_v4()
 
     ssrge = SSrGE(snv_id_list=s_list,
                   gene_id_list=ge_list,
                   nb_ranked_features=3,
                   alpha=0.01)
-    X_r = ssrge.fit_transform(X, Y)
+    ssrge.fit_transform(X, Y, C)
+    ssrge.score(X, Y)
 
-    score = ssrge.score(X,Y)
-    print ssrge.retained_snvs
-    print ssrge.retained_genes
-
-    subgroup = ssrge.rank_features_for_a_subgroup(range(10))
+    print(ssrge.retained_snvs)
+    print(ssrge.retained_genes)
 
     ssrge = SSrGE(nb_ranked_features=2,
                   alpha=0.01)
 
-    X_r = ssrge.fit_transform(X, Y)
+    ssrge.fit_transform(X, Y, C)
 
-    score = ssrge.score(X,Y)
-    print ssrge.retained_snvs
-    print ssrge.retained_genes
+    ssrge.score(X,Y)
+    print(ssrge.retained_snvs)
+    print(ssrge.retained_genes)
 
 
 class SSrGE():
@@ -90,6 +88,9 @@ class SSrGE():
         self.gene_index = None
         self.snv_id_dict = None
         self.gene_id_dict = None
+
+        self._cnv_used = None
+        self.cnv_score = defaultdict(float)
 
         self.nb_ranked_features = nb_ranked_features
 
@@ -154,7 +155,7 @@ class SSrGE():
         self.gene_id_dict = defaultdict(str, {name: pos
                             for pos, name in self.gene_index.iteritems()})
 
-    def fit(self, SNV_mat, GE_mat, to_dense=False):
+    def fit(self, SNV_mat, GE_mat, CNV_mat=None, to_dense=False):
         """
         infer eeSNV by fitting sparse linear models using SNV as features
         and gene expression as objectives
@@ -190,9 +191,12 @@ class SSrGE():
         if isinstance(GE_mat, np.matrix):
             GE_mat = np.array(GE_mat)
 
+        self._cnv_used = CNV_mat is not None
+
         g_index, coefs, intercepts = BatchFitting(
             I_mat=SNV_mat,
             O_mat=GE_mat,
+            CNV_mat=CNV_mat,
             model=self.model,
             model_params=self.model_params,
             nb_processes=self.nb_threads,
@@ -231,11 +235,11 @@ class SSrGE():
         """
         return SNV_mat.T[[self.snv_id_dict[snv] for snv in self.retained_snvs]].T
 
-    def fit_transform(self, SNV_mat, GE_mat, to_dense=False):
+    def fit_transform(self, SNV_mat, GE_mat, CNV_mat=None, to_dense=False):
         """
         Combination of fit and transform functions
         """
-        self.fit(SNV_mat, GE_mat, to_dense)
+        self.fit(SNV_mat, GE_mat, CNV_mat=CNV_mat, to_dense=to_dense)
         return self.transform(SNV_mat)
 
     def _process_computed_coefs(self, coefs, g_index, intercepts):
@@ -246,7 +250,7 @@ class SSrGE():
             :coefs: list<Counter>
         """
         if self.verbose:
-            print '\nprocess computed coefs....'
+            print('\nprocess computed coefs....')
 
         self.eeSNV_index = list(set([key for coef in coefs for key in coef.iterkeys()]))
         self.eeSNV_index = {self.eeSNV_index[i]: i for i in range(len(self.eeSNV_index))}
@@ -261,7 +265,13 @@ class SSrGE():
         length = len(coefs)
 
         for counter, gene, intercept in zip(coefs, g_index, intercepts):
+            gene_name = self.gene_index[gene] if self.gene_index else gene
+
             for key, count in counter.iteritems():
+                if self._cnv_used and key == self.SNV_mat_shape[1]:
+                    self.cnv_score[gene_name] = count
+                    continue
+
                 self.eeSNV_weight[key] += count
 
                 if self._snv_ids_given:
@@ -274,6 +284,9 @@ class SSrGE():
                 self.intercepts[gene] = intercept
                 self.coefs[gene] = counter
 
+                if self.cnv_score[gene_name]:
+                    self.coefs[gene].pop(self.SNV_mat_shape[1])
+
             i += 1
 
             stdout.write('\r {0:.2f} / 100'.format(i / length * 100))
@@ -282,7 +295,7 @@ class SSrGE():
         for snv in self.eeSNV_CIS_score:
             self.eeSNV_CIS_score[snv] /= self.eeSNV_weight[self.snv_id_dict[snv]]
 
-        print '\n'
+        print('\n')
 
     def score(self, SNV_mat, GE_mat):
         """

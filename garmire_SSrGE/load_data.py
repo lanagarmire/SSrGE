@@ -21,7 +21,7 @@ def load_indexes(path_indexes=INDEX_SAVE_PATH):
     t = time()
 
     if not isfile(path_indexes + 'index_start.pickle'):
-        print 'indexes not found. Creating indexes...'
+        print('indexes not found. Creating indexes...')
         generate_refgenome()
 
     with open(path_indexes + 'index_start.pickle', 'r') as f:
@@ -31,7 +31,7 @@ def load_indexes(path_indexes=INDEX_SAVE_PATH):
     with open(path_indexes + 'position_index.pickle', 'r') as f:
         position_index = cPickle.load(f)
 
-    print 'gene position indexes loaded in {0} s'.format(time() - t)
+    print('gene position indexes loaded in {0} s'.format(time() - t))
     return index_start, index_end, position_index
 
 def process_line_from_vcf_file(line):

@@ -14,6 +14,10 @@ from garmire_SSrGE.config import TIME_LIMIT
 
 from collections import Counter
 
+from numpy import hstack
+from scipy.sparse import hstack as shstack
+from scipy.sparse import issparse
+
 
 class TimeoutException(Exception): pass
 
@@ -21,7 +25,7 @@ class TimeoutException(Exception): pass
 @contextmanager
 def time_limit(seconds):
     def signal_handler(signum, frame):
-        raise TimeoutException, "Timed out!"
+        raise TimeoutException("Timed out!")
 
     signal.signal(signal.SIGALRM, signal_handler)
     signal.alarm(seconds)
@@ -37,14 +41,15 @@ def debug():
     #### DEBUG ####
     **** Test function ****
     """
-    from garmire_SSrGE.examples import create_example_matrix_v1
+    from garmire_SSrGE.examples import create_example_matrix_v3
     from sklearn.linear_model import Lasso
 
 
-    X, Y, W = create_example_matrix_v1()
+    X, Y, C, W = create_example_matrix_v3()
 
     multi_test = BatchFitting(I_mat=X,
                               O_mat=Y,
+                              CNV_mat=C,
                               model=Lasso,
                               model_params={'alpha':0.01},
                               nb_processes=1,
@@ -63,6 +68,7 @@ class MultiProcessFitting(Process):
                  model_params,
                  matrix,
                  process_id,
+                 CNV_mat=None,
                  time_limit=TIME_LIMIT,
                  min_obs_for_regress=MIN_OBS_FOR_REGRESS,
                  only_nonzero=False,
@@ -74,6 +80,7 @@ class MultiProcessFitting(Process):
         self.model = model
         self.model_params = model_params
         self.matrix = matrix
+        self.CNV_mat = CNV_mat
         self.process_id = process_id
         self.only_nonzero = only_nonzero
         self.cis_model = cis_model
@@ -90,13 +97,18 @@ class MultiProcessFitting(Process):
             except Exception as e:
                 continue
 
+            index = None
+
             if self.only_nonzero:
-                matrix, y = self._clean_matrix(y)
+                matrix, y, index = self._clean_matrix(y)
             else:
                 matrix = self.matrix
 
             if self.cis_model:
                 matrix = self._matrix_to_cis_model(matrix, gene_i)
+
+            if self.CNV_mat is not None:
+                matrix = self._add_cnv(matrix, y, gene_i, index)
 
             if y.shape[0] > self.min_obs_for_regress and \
                not isinstance(matrix, type(None)):
@@ -107,8 +119,8 @@ class MultiProcessFitting(Process):
                     intercept = np.nan
                     coefs = np.empty(self.matrix.shape[1])
                     coefs[:] = np.nan
-                    print '\n exception found for linear model:{0}\n skipping'\
-                        .format(e)
+                    print('\n exception found for linear model:{0}\n skipping'\
+                          .format(e))
                 else:
                     if self.cis_model:
                         coefs = np.zeros(self.matrix.shape[1])
@@ -143,7 +155,15 @@ class MultiProcessFitting(Process):
     def _clean_matrix(self, y):
         """ """
         index = np.nonzero(y)[0]
-        return self.matrix[index], y[index]
+        return self.matrix[index], y[index], index
+
+    def _add_cnv(self, matrix, y, gene_i, index):
+        """ """
+
+        stack = shstack if issparse(matrix) else hstack
+        CNV_mat = self.CNV_mat[index]
+
+        return stack([matrix, CNV_mat.T[gene_i].T.reshape((matrix.shape[0], 1))])
 
 
 class BatchFitting():
@@ -154,6 +174,7 @@ class BatchFitting():
             O_mat,
             model,
             model_params,
+            CNV_mat=None,
             nb_processes=1,
             time_limit=TIME_LIMIT,
             min_obs_for_regress=MIN_OBS_FOR_REGRESS,
@@ -163,6 +184,7 @@ class BatchFitting():
             ):
         self.I_mat = I_mat
         self.O_mat = O_mat
+        self.CNV_mat = CNV_mat
         self.model = model
         self.model_params = model_params
         self.nb_processes = nb_processes
@@ -196,7 +218,7 @@ class BatchFitting():
 
                 break
             except Exception as e:
-                print 'exception was found for qsize:', e
+                print('exception was found for qsize:', e)
                 continue
 
         return out_qsize
@@ -225,6 +247,7 @@ class BatchFitting():
                     model=self.model,
                     model_params=self.model_params,
                     matrix=self.I_mat,
+                    CNV_mat=self.CNV_mat,
                     process_id=i,
                     time_limit=self.time_limit,
                     only_nonzero=self.only_nonzero,
@@ -243,8 +266,8 @@ class BatchFitting():
         while True:
             for process in self.processes_list:
                 if process.exitcode:
-                    print 'error with process with id: {0} terminating'\
-                        .format(process.process_id)
+                    print('error with process with id: {0} terminating'\
+                          .format(process.process_id))
                     terminate = True
                     break
 
@@ -268,13 +291,13 @@ class BatchFitting():
             sleep(0.5)
 
         if terminate:
-            print 'one of the process raised an exception'\
-                '\n killing process...'
+            print('one of the process raised an exception'\
+                  '\n killing process...')
             self._kill_processes()
 
             return Exception('process not finished correctly!')
 
-        print '\n'
+        print('\n')
 
         for i in range(qsize):
             res_list.append(output_queue.get())
