@@ -195,14 +195,7 @@ class BatchFitting():
                     try:
                         out_qsize = output_queue.qsize()
                     except NotImplementedError:
-                        output_queue = None
-                        empty = output_queue.empty()
-
-                        if empty:
-                            sleep(self.time_limit)
-                            empty = output_queue.empty()
-                            if empty:
-                                output_qsize = empty
+                        out_qsize = None
                 break
             except Exception as e:
                 print 'exception was found for qsize:', e
@@ -266,8 +259,12 @@ class BatchFitting():
                 stdout.write('\r{0} / {1} models done {2}'\
                              .format(out_qsize, qsize, prog[j]))
             else:
-                stdout.write('\rMultithreqding queue not implemented for this OS\n'\
-                             'cannot give qn estimation of the models computed')
+                stdout.write('\r Multithreqding queue not implemented for this OS'\
+                             ' cannot give an estimation of the models computed')
+
+                if input_queue.empty():
+                    sleep(self.time_limit)
+                    break
 
             stdout.flush()
 
