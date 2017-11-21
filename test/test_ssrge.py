@@ -40,6 +40,56 @@ class TestPackage(unittest.TestCase):
 
         self.assertTrue(score[0] < score[1])
 
+    def test_ssrge_elasticnet(self):
+        """test ssrge procedure with elasticnet model"""
+        from garmire_SSrGE.examples import create_example_matrix_v1
+        from garmire_SSrGE.ssrge import SSrGE
+
+        X, Y, W = create_example_matrix_v1()
+        ssrge = SSrGE(alpha=0.01, model='ElasticNet')
+
+        ssrge.fit(X, Y)
+        self.assertTrue(ssrge.eeSNV_weight)
+
+        Xr = ssrge.transform(X)
+
+        self.assertTrue(Xr.sum())
+        self.assertTrue(Xr.shape[0] == X.shape[0])
+        self.assertTrue(Xr.shape[1] <= X.shape[1])
+
+        snv_ranked = ssrge.rank_eeSNVs()
+
+        self.assertTrue(snv_ranked)
+
+        score = ssrge.score(X,Y)
+
+        self.assertTrue(score[0] < score[1])
+
+    def test_ssrge_cnv(self):
+        """test ssrge procedure with cnv matrix"""
+        from garmire_SSrGE.examples import create_example_matrix_v3
+        from garmire_SSrGE.ssrge import SSrGE
+
+        X, Y, C, W = create_example_matrix_v3()
+        ssrge = SSrGE(alpha=0.01)
+
+        ssrge.fit(X, Y, C)
+        self.assertTrue(ssrge.eeSNV_weight)
+
+        Xr = ssrge.transform(X)
+
+        self.assertTrue(Xr.sum())
+        self.assertTrue(Xr.shape[0] == X.shape[0])
+        self.assertTrue(Xr.shape[1] < X.shape[1])
+
+        snv_ranked = ssrge.rank_eeSNVs()
+
+        self.assertTrue(snv_ranked)
+
+        score = ssrge.score(X,Y)
+
+        self.assertTrue(score[0] < score[1])
+
     def test_ssrge_rank_gene(self):
         """test ssrge and rank genes and snvs"""
         from garmire_SSrGE.examples import create_example_matrix_v2

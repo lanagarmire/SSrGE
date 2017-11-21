@@ -152,7 +152,7 @@ class ExtractMatrix():
                         name,
                         len(self.samples_snv_dict[sample])))
 
-        print '\n', tabulate(tab, headers=['sample', 'name', 'Number of SNVs'])
+        print('\n', tabulate(tab, headers=['sample', 'name', 'Number of SNVs']))
 
         vectorizer = DictVectorizer()
 
@@ -160,7 +160,7 @@ class ExtractMatrix():
                                              for sample in self.samples])
         self.snv_index = vectorizer.vocabulary_
 
-        print 'number of SNVs in the dataset:', len(self.snv_index)
+        print('number of SNVs in the dataset:', len(self.snv_index))
 
         return f_matrix
 
@@ -206,14 +206,14 @@ class ExtractMatrix():
                         name,
                         len(self.samples_ge_dict[sample])))
 
-        print '\n', tabulate(tab, headers=['sample', 'name', 'Number of genes'])
+        print('\n', tabulate(tab, headers=['sample', 'name', 'Number of genes']))
 
         vectorizer = DictVectorizer()
         f_matrix = vectorizer.fit_transform([self.samples_ge_dict[sample]
                                              for sample in self.samples])
         self.ge_index = vectorizer.vocabulary_
 
-        print 'number of genes in the dataset:', len(self.ge_index)
+        print('number of genes in the dataset:', len(self.ge_index))
 
         return f_matrix.T
 

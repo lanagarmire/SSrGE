@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-VERSION = '1.4.2'
+VERSION = '1.5.0'
 
 setup(name='garmire_SSrGE',
       version=VERSION,
@@ -19,6 +19,6 @@ setup(name='garmire_SSrGE',
       install_requires=[
           'numpy',
           'scipy',
-          'scikit-learn==0.18',
+          'scikit-learn',
           'tabulate'],
       )

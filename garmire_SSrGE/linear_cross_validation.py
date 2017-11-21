@@ -84,10 +84,10 @@ class LinearCrossVal():
             self.intercept_mean.append(intercepts)
 
             if self.verbose:
-                print '\nmean error model:', errs_models
-                print 'mean error null model:', errs_null_models
-                print 'mean number of model:', nb_models
-                print 'mean number of eeSNVs:', nb_coefs
+                print('\nmean error model:', errs_models)
+                print('mean error null model:', errs_null_models)
+                print('mean number of model:', nb_models)
+                print('mean number of eeSNVs:', nb_coefs)
 
         return self.err_model_mean
 
@@ -101,8 +101,8 @@ class LinearCrossVal():
         nb_models = []
         intercepts = []
 
-        print '\n######## cross validation\n####parameters:{0}'\
-            .format(self.ssrge_params)
+        print('\n######## cross validation\n####parameters:{0}'\
+              .format(self.ssrge_params))
 
         ssrge = SSrGE(**self.ssrge_params)
 
@@ -111,7 +111,7 @@ class LinearCrossVal():
 
         for train, test in kfold.split(self.SNV_mat):
             i += 1
-            print '\n## fold nb {0}'.format(i)
+            print('\n## fold nb {0}'.format(i))
 
             X_train = self.SNV_mat[train]
             Y_train = self.GE_mat.T[train].T

@@ -13,7 +13,9 @@ def create_example_matrix_v1(nb_cells=100, nb_snvs=6, nb_genes=5):
     W = np.zeros((nb_snvs, nb_genes))
 
 
+    W[0][1] = 5
     W[0][0] = 5
+    W[1][1] = 5
     W[1][0] = 5
     W[3][3] = 2
     W[5][4] = 6
@@ -58,6 +60,24 @@ def create_example_matrix_v2(nb_cells=100, nb_snvs=6, nb_genes=5):
 
     return X, Y, gene_id_list, snv_id_list
 
+def create_example_matrix_v3(nb_cells=100, nb_snvs=6, nb_genes=5):
+    """
+    create a random feature matrix and infer Y according to coefs W
+    Four sparse coefs are set into W
+    Additionally, create CNV matrix using Y
+    """
+    X, Y, W = create_example_matrix_v1()
+    C = np.random.randint(0,10, (Y.shape)).T
 
-if __name__ == '__main__':
-    launch_pipeline_and_rank_genes()
+    return X, Y, C, W
+
+def create_example_matrix_v4(nb_cells=100, nb_snvs=6, nb_genes=5):
+    """
+    create a random feature matrix and infer Y according to coefs W
+    Four sparse coefs are set into W
+    Additionally, create CNV matrix using Y
+    """
+    X, Y, gene_id_list, snv_id_list = create_example_matrix_v2()
+    C = np.random.randint(0,10, (Y.shape)).T
+
+    return X, Y, C, gene_id_list, snv_id_list

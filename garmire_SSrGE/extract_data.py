@@ -1,16 +1,8 @@
 #! /usr/bin/python
-
-from os import listdir
-
-from os.path import isdir
-from os.path import isfile
-
 from collections import defaultdict
 from collections import Counter
 
-from fnmatch import fnmatch
 from bisect import bisect
-from time import time
 
 import numpy as np
 
@@ -26,7 +18,7 @@ from garmire_SSrGE.load_data import load_indexes
 
 def debug():
     """ DEBUG """
-    extract_data = ExtractData()
+    ExtractData()
 
 
 class ExtractData():
@@ -81,9 +73,6 @@ class ExtractData():
         """
         self._load_indexes()
 
-        line_nb = sum([1 for l in open(vcf_path, 'r')
-                       if l[0] !='#'])
-
         f_snv = open(vcf_path, 'r')
 
         wrong_count = 0
@@ -103,7 +92,7 @@ class ExtractData():
                 continue
 
             ref_start = bisect(self.position_index['start'][chrid], start)
-            ref_start_list = self.position_index['start'][chrid][ref_start-10:
+            ref_start_list = self.position_index['start'][chrid][max(ref_start-10, 0):
                                                                  ref_start]
             ref_end = bisect(self.position_index['end'][chrid], end)
             ref_end_list = self.position_index['end'][chrid][ref_end:

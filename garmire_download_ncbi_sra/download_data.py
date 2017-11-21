@@ -7,7 +7,6 @@ download data from NCBI according to GEO accession number
 from os.path import isdir
 from os.path import isfile
 from os import popen
-from shutil import copyfile
 
 import urllib2
 import re
@@ -47,23 +46,23 @@ def _download(url):
                                                srx,
                                                srr)
     except Exception as e:
-        print 'error with SRX {0}!!!'.format(address)
+        print('error with SRX {0}!!!'.format(address))
         return "{1} {0}".format(str(e), address)
 
     if isfile(f_name):
-        print "{0} already exists continue...".format(f_name)
+        print("{0} already exists continue...".format(f_name))
         return "{0} already exists continue...".format(f_name)
 
     try:
-        print 'downloading {0} to {1}...'.format(srr_url, f_name)
-        res = popen("wget -O {0} {1} --no-verbose".format(
+        print('downloading {0} to {1}...'.format(srr_url, f_name))
+        popen("wget -O {0} {1} --no-verbose".format(
             f_name,
             srr_url)).read()
-        print '{0} successfully downloaded'.format(f_name)
+        print('{0} successfully downloaded'.format(f_name))
         return
 
     except Exception as e:
-        print 'error while downloading {0}!!!'.format(address)
+        print('error while downloading {0}!!!'.format(address))
         return "{1} {0}\n".format(str(e), address)
 
     sleep(0.2)
@@ -81,16 +80,14 @@ def download_data():
 
     f_error = open(PATH_DATA + "error_log.txt", "w")
 
-    thread_list = []
-
     thread_pool = ThreadPool(processes=NB_THREADS)
 
     res = thread_pool.map(_download, urls)
 
-    print "######## errors founds:"
+    print("######## errors founds:")
     for err in res:
         if err:
-            print err
+            print(err)
             f_error.write('{0}\n'.format(err))
 
 def get_urls():
