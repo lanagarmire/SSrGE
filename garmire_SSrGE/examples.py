@@ -67,7 +67,7 @@ def create_example_matrix_v3(nb_cells=100, nb_snvs=6, nb_genes=5):
     Additionally, create CNV matrix using Y
     """
     X, Y, W = create_example_matrix_v1()
-    C = np.random.randint(0,10, (Y.shape)).T
+    C = np.random.randint(0,10, (Y.shape))
 
     return X, Y, C, W
 
@@ -78,6 +78,6 @@ def create_example_matrix_v4(nb_cells=100, nb_snvs=6, nb_genes=5):
     Additionally, create CNV matrix using Y
     """
     X, Y, gene_id_list, snv_id_list = create_example_matrix_v2()
-    C = np.random.randint(0,10, (Y.shape)).T
+    C = np.random.randint(0,10, (Y.shape))
 
     return X, Y, C, gene_id_list, snv_id_list

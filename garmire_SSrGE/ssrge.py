@@ -1,3 +1,10 @@
+from sys import version_info
+
+if version_info[0] != 2\
+    or version_info[1] < 7:
+    raise Exception('Python 2.7.X must be used!')
+
+
 from garmire_SSrGE.multiprocess_fitting import BatchFitting
 
 from garmire_SSrGE.config import TIME_LIMIT
@@ -38,6 +45,7 @@ def debug():
                   gene_id_list=ge_list,
                   nb_ranked_features=3,
                   alpha=0.01)
+
     ssrge.fit_transform(X, Y, C)
     ssrge.score(X, Y)
 
@@ -171,7 +179,8 @@ class SSrGE():
             :SNV_index: list<int>    List of eeSNV index from the SNV_matrix
             :eeSNV_mat: (n_samples x n_eeSNVs) matrix (binary)    (len(n_eeSNVs) < len(n_SNVs))
         """
-        if GE_mat.shape[0] == SNV_mat.shape[0]:
+        if GE_mat.shape[0] == SNV_mat.shape[0] and \
+           GE_mat.shape[1] != SNV_mat.shape[1]:
             GE_mat = GE_mat.T
 
         self.SNV_mat_shape = SNV_mat.shape
@@ -313,6 +322,10 @@ class SSrGE():
             :err_models: float    mean of the MSE for models
             :err_null_models: float    mean of the MSE for null models (only intercepts)
         """
+        if GE_mat.shape[0] == SNV_mat.shape[0] and \
+           GE_mat.shape[1] != SNV_mat.shape[1]:
+            GE_mat = GE_mat.T
+
         assert(SNV_mat.shape[1] == self.SNV_mat_shape[1])
         assert(GE_mat.shape[0] == self.GE_mat_shape[0])
 

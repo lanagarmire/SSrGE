@@ -41,6 +41,10 @@ class LinearCrossVal():
                  verbose=True,
                  **ssrge_params):
         """ """
+        if GE_mat.shape[0] == SNV_mat.shape[0] and \
+           GE_mat.shape[1] != SNV_mat.shape[1]:
+            GE_mat = GE_mat.T
+
         self.SNV_mat = SNV_mat
         self.GE_mat = GE_mat
         self.verbose = verbose

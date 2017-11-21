@@ -14,7 +14,7 @@ SSrGE can be used as a stand-alone procedure to reduce any SNV matrix (raw:singl
 ```bash
 git clone https://github.com/lanagarmire/SSrGE.git
 cd SSrGE
-pip install -r requirements.txt --user
+pip2 install -r requirements.txt --user # python 2.7.X must be used
 ```
 
 ## Requirements
@@ -29,7 +29,7 @@ pip install -r requirements.txt --user
 ## usage
 * test SSrGE is functional:
 ```bash
-  python test/test_ssrge.py -v
+  python2 test/test_ssrge.py -v
   ```
 
 * Instantiate and fit SSrGE:
@@ -199,7 +199,7 @@ MIR6859-3    chr1;chr15;chr16    17369;102513727;67052   17436;102513794;67119  
 * First, a GTF index must be created:
 
 ```bash
-python ./garmire_SSrGE/generate_refgenome_index.py
+python2 ./garmire_SSrGE/generate_refgenome_index.py
 ```
 
 * Once the index generated, the matrices can be genereated easily:
@@ -218,7 +218,7 @@ GE_mat = extract_matrix.extract_GE_mat()
 to test all the extraction workflow:
 
 ```bash
-python ./test/test_extract_matrices.py -v
+python2 ./test/test_extract_matrices.py -v
 ```
 
 

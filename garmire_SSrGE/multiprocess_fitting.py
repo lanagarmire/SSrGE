@@ -56,7 +56,7 @@ def debug():
     X, Y, C, W = create_example_matrix_v3()
 
     multi_test = BatchFitting(I_mat=X,
-                              O_mat=Y,
+                              O_mat=Y.T,
                               CNV_mat=C,
                               model=Lasso,
                               model_params={'alpha': 0.01},
@@ -167,7 +167,6 @@ class MultiProcessFitting(Process):
 
     def _add_cnv(self, matrix, y, gene_i, index):
         """ """
-
         stack = shstack if issparse(matrix) else hstack
         CNV_mat = self.CNV_mat[index]
 
