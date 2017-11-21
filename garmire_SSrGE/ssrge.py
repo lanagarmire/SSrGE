@@ -161,7 +161,7 @@ class SSrGE():
 
         input:
             :SNV_mat: (n_samples x n_SNVs) matrix (binary). Matrix can be sparse
-            :GE_mat: (n_GE x n_samples) matrix (float value)
+            :GE_mat: (n_samples x n_Genes) matrix (float value)
             :to_dense: Bool    if True SNV_mat is converted as ndarray
 
         return:
@@ -170,6 +170,8 @@ class SSrGE():
             :SNV_index: list<int>    List of eeSNV index from the SNV_matrix
             :eeSNV_mat: (n_samples x n_eeSNVs) matrix (binary)    (len(n_eeSNVs) < len(n_SNVs))
         """
+        if GE_mat.shape[0] == SNV_mat.shape[0]:
+            GE_mat = GE_mat.T
 
         self.SNV_mat_shape = SNV_mat.shape
         self.GE_mat_shape = GE_mat.shape

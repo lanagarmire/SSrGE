@@ -18,7 +18,7 @@ def create_example_matrix_v1(nb_cells=100, nb_snvs=6, nb_genes=5):
     W[3][3] = 2
     W[5][4] = 6
 
-    Y = (X * W).T
+    Y = (X * W)
 
     return X, Y, W
 
@@ -54,7 +54,7 @@ def create_example_matrix_v2(nb_cells=100, nb_snvs=6, nb_genes=5):
     W[3][3] = 2
     W[5][4] = 6
 
-    Y = (X * W).T
+    Y = (X * W)
 
     return X, Y, gene_id_list, snv_id_list
 

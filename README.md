@@ -35,6 +35,10 @@ pip install -r requirements.txt --user
 * Instantiate and fit SSrGE:
 
 SSrGE should be used as a python package, below are usage example.
+SSrGE takes as input two matrices (A SNV matrix (n_cells x n_SNVs) and a Gene matrix (n_cells x n_Genes)
+In the original study, we encoded X with the following procedure:
+if a given snv (s) is present into a given cell (c), then X_c,n = 1
+However, any type of encoding or continuous values can be used (For example, one can use X_c,n = 1 for a 1/1 genotype and 0.5 for a 0/1 genotype)
 
 ```python
 from garmire_SSrGE.ssrge import SSrGE

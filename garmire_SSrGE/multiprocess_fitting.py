@@ -14,14 +14,25 @@ from garmire_SSrGE.config import TIME_LIMIT
 
 from collections import Counter
 
+from numpy import hstack
+from scipy.sparse import hstack as shstack
+from scipy.sparse import issparse
+
+import warnings
+
+from time import time
+
 
 class TimeoutException(Exception): pass
 
 
 @contextmanager
 def time_limit(seconds):
+    warnings.catch_warnings()
+    warnings.simplefilter("ignore")
+
     def signal_handler(signum, frame):
-        raise TimeoutException, "Timed out!"
+        raise TimeoutException("Timed out!")
 
     signal.signal(signal.SIGALRM, signal_handler)
     signal.alarm(seconds)
@@ -46,7 +57,7 @@ def debug():
     multi_test = BatchFitting(I_mat=X,
                               O_mat=Y,
                               model=Lasso,
-                              model_params={'alpha':0.01},
+                              model_params={'alpha': 0.01},
                               nb_processes=1,
                               only_nonzero=False,
                               min_obs_for_regress=0,
@@ -107,8 +118,8 @@ class MultiProcessFitting(Process):
                     intercept = np.nan
                     coefs = np.empty(self.matrix.shape[1])
                     coefs[:] = np.nan
-                    print '\n exception found for linear model:{0}\n skipping'\
-                        .format(e)
+                    print('\n exception found for linear model:{0}\n skipping'\
+                        .format(e))
                 else:
                     if self.cis_model:
                         coefs = np.zeros(self.matrix.shape[1])
@@ -196,7 +207,7 @@ class BatchFitting():
 
                 break
             except Exception as e:
-                print 'exception was found for qsize:', e
+                print('exception was found for qsize:', e)
                 continue
 
         return out_qsize
@@ -240,11 +251,13 @@ class BatchFitting():
         j = 0
         prog = ['/', '-', '\\', '|']
 
+        start_time = time()
+
         while True:
             for process in self.processes_list:
                 if process.exitcode:
-                    print 'error with process with id: {0} terminating'\
-                        .format(process.process_id)
+                    print('error with process with id: {0} terminating'\
+                        .format(process.process_id))
                     terminate = True
                     break
 
@@ -253,8 +266,8 @@ class BatchFitting():
 
             out_qsize = self._get_qsize(output_queue)
 
-            stdout.write('\r{0} / {1} models done {2}'\
-                         .format(out_qsize, qsize, prog[j]))
+            stdout.write('\r{0} / {1} models done {2} (time: {3})'\
+                         .format(out_qsize, qsize, prog[j], time() - time() - start_time))
             stdout.flush()
 
             j += 1
