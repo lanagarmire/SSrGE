@@ -272,8 +272,6 @@ class BatchFitting():
         j = 0
         prog = ['/', '-', '\\', '|']
 
-        start_time = time()
-
         while True:
             for process in self.processes_list:
                 if process.exitcode:

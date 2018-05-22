@@ -1,10 +1,3 @@
-from sys import version_info
-
-if version_info[0] != 2\
-    or version_info[1] < 7:
-    raise Exception('Python 2.7.X must be used!')
-
-
 from garmire_SSrGE.multiprocess_fitting import BatchFitting
 
 from garmire_SSrGE.config import TIME_LIMIT
@@ -13,6 +6,9 @@ from garmire_SSrGE.config import NB_THREADS
 
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import ElasticNet
+from sklearn.linear_model import OrthogonalMatchingPursuit
+from sklearn.linear_model import LassoLars
+from sklearn.linear_model import LassoCV
 
 from sklearn.metrics import median_absolute_error
 
@@ -77,6 +73,7 @@ class SSrGE():
             model='LASSO',
             model_params=None,
             alpha=0.1,
+            n_alphas=50,
             l1_ratio=0.5,
             verbose=True,
             **kwargs):
@@ -87,6 +84,7 @@ class SSrGE():
                                                               to the gene where the given
                                                               svn is found
             :nb_ranked_features: int    top ranked features (snvs and genes) to keep
+            :n_alphas: number of alphas to use if model == LassoCV (see sklearn doc for LassoCV)
         """
         self.retained_genes = []
         self.retained_snvs = []
@@ -135,13 +133,36 @@ class SSrGE():
         self.verbose = verbose # whether to print ranking results into the terminal
         self.eeSNV_CIS_score = defaultdict(float)
         self.gene_CIS_score = defaultdict(float)
+        self._model_type = None
+        self.alpha = alpha
+        self.n_alphas = n_alphas
 
         if model == 'LASSO':
+            self._model_type = model
             self.model = Lasso
             self.model_params = {
                 'alpha': alpha,
                 'max_iter': 1000,
             }
+
+        elif model == 'OMP':
+            self._model_type = model
+            self.model = OrthogonalMatchingPursuit
+            self.model_params = {'n_nonzero_coefs': alpha}
+
+        elif model == 'LassoLars':
+            self._model_type = model
+            self.model = LassoLars
+            self.model_params = {
+                'alpha': alpha,
+                'max_iter': 1000,}
+
+        elif model == 'LassoCV':
+            self._model_type = model
+            self.model = LassoCV
+            self.model_params = {
+                'n_alphas': n_alphas}
+
         elif model == 'ElasticNet':
             self.model = ElasticNet
             self.model_params = {
@@ -159,9 +180,9 @@ class SSrGE():
         self.gene_index = dict(enumerate(gene_id_list))
 
         self.snv_id_dict = {name: pos
-                            for pos, name in self.snv_index.iteritems()}
+                            for pos, name in self.snv_index.items()}
         self.gene_id_dict = defaultdict(str, {name: pos
-                            for pos, name in self.gene_index.iteritems()})
+                            for pos, name in self.gene_index.items()})
 
     def fit(self, SNV_mat, GE_mat, CNV_mat=None, to_dense=False):
         """
@@ -186,6 +207,11 @@ class SSrGE():
         self.SNV_mat_shape = SNV_mat.shape
         self.GE_mat_shape = GE_mat.shape
 
+        if self._model_type == 'OMP' and self.alpha and \
+           0.0 < self.alpha < 1.0:
+            self.model_params['n_nonzero_coefs'] = int(np.floor(
+                SNV_mat.shape[0] * self.alpha))
+
         if not self._snv_ids_given:
             self._create_dicts(range(self.SNV_mat_shape[1]),
                                range(self.GE_mat_shape[0]))
@@ -196,7 +222,10 @@ class SSrGE():
         if issparse(GE_mat):
             GE_mat = GE_mat.todense()
 
-        if to_dense and issparse(SNV_mat):
+        if (to_dense or \
+            self._model_type == 'OMP' or \
+            self._model_type == 'LassoLars' ) \
+           and issparse(SNV_mat):
             SNV_mat = SNV_mat.todense()
 
         if isinstance(GE_mat, np.matrix):
@@ -263,7 +292,7 @@ class SSrGE():
         if self.verbose:
             print('\nprocess computed coefs....')
 
-        self.eeSNV_index = list(set([key for coef in coefs for key in coef.iterkeys()]))
+        self.eeSNV_index = list(set([key for coef in coefs for key in coef.keys()]))
         self.eeSNV_index = {self.eeSNV_index[i]: i for i in range(len(self.eeSNV_index))}
 
         self.eeSNV_weight = defaultdict(float)
@@ -278,7 +307,7 @@ class SSrGE():
         for counter, gene, intercept in zip(coefs, g_index, intercepts):
             gene_name = self.gene_index[gene] if self.gene_index else gene
 
-            for key, count in counter.iteritems():
+            for key, count in counter.items():
                 if self._cnv_used and key == self.SNV_mat_shape[1]:
                     self.cnv_score[gene_name] = count
                     continue
@@ -352,7 +381,7 @@ class SSrGE():
 
             Y_test = GE_mat[non_null_gene][non_zero]
             coef = np.zeros(self.SNV_mat_shape[1])
-            coef[self.coefs[non_null_gene].keys()] = [self.coefs[non_null_gene][k]
+            coef[list(self.coefs[non_null_gene].keys())] = [self.coefs[non_null_gene][k]
                                                       for k in self.coefs[non_null_gene]]
             Y_inferred =np.asarray(SNV_mat[non_zero] * np.matrix(coef).T).T[0] \
                         + self.intercepts[non_null_gene]
@@ -380,7 +409,7 @@ class SSrGE():
 
         self.snvs_ranked = []
 
-        ranked_snv = sorted(self.eeSNV_weight.iteritems(),
+        ranked_snv = sorted(self.eeSNV_weight.items(),
                             key=lambda x:x[1],
                             reverse=True)
 
@@ -402,7 +431,7 @@ class SSrGE():
         self.gene_weights = defaultdict(float)
         self.gene_CIS_score = defaultdict(float)
 
-        for snv_i, score in self.eeSNV_weight.iteritems():
+        for snv_i, score in self.eeSNV_weight.items():
             snv = self.snv_index[snv_i]
             gene, pos = snv
             self.gene_weights[gene] += score
@@ -413,7 +442,7 @@ class SSrGE():
         for gene in self.gene_CIS_score:
             self.gene_CIS_score[gene] /= self.gene_weights[gene]
 
-        self.genes_ranked = sorted(self.gene_weights.iteritems(),
+        self.genes_ranked = sorted(self.gene_weights.items(),
                                   key=lambda x:x[1],
                                   reverse=True)
         return self.genes_ranked
@@ -446,15 +475,15 @@ class SSrGE():
 
         subgroup = SubGroupData()
 
-        for index, gene in self.gene_index.iteritems():
+        for index, gene in self.gene_index.items():
             subgroup.gene_expr_distrib[gene] = GE_mat_sub.T[index]
 
-        for snv_i, score in self.eeSNV_weight.iteritems():
+        for snv_i, score in self.eeSNV_weight.items():
             snv = self.snv_index[snv_i]
             gene, pos = snv
             gene_i = self.gene_id_dict[gene]
 
-            for cell_i in xrange(SNV_mat_sub.shape[0]):
+            for cell_i in range(SNV_mat_sub.shape[0]):
                 snv_weights_list[cell_i][snv] = SNV_mat_sub[cell_i, snv_i]
 
                 if gene_i != '':

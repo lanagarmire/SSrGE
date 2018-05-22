@@ -4,7 +4,6 @@ from sklearn.model_selection import KFold
 from garmire_SSrGE.ssrge import SSrGE
 
 from garmire_SSrGE.config import CROSS_VAL_NFOLD
-from garmire_SSrGE.config import NB_THREADS
 
 import numpy as np
 
@@ -14,7 +13,6 @@ def debug():
     #### DEBUG ####
     **** Test function ****
     """
-    from scipy.sparse import csr_matrix
     from garmire_SSrGE.examples import create_example_matrix_v1
 
     X, Y, W = create_example_matrix_v1()
@@ -131,7 +129,7 @@ class LinearCrossVal():
             errs_null_models.append(score_null)
             nb_coefs.append(len(ssrge.eeSNV_weight))
             nb_models.append(len(ssrge.intercepts))
-            intercepts.append(np.mean(ssrge.intercepts.values()))
+            intercepts.append(np.mean(list(ssrge.intercepts.values())))
 
         return  (np.mean(errs_models),
                  np.mean(errs_null_models),
