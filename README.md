@@ -67,6 +67,19 @@ ssrge_ES.fit(X, Y)
 
 ```
 
+* Add CNV matrix:
+
+The fit method can take an additional CNV matrix of shape (n_cells x n_genes), and describing the CNV level for each gene.
+
+```python
+from garmire_SSrGE.examples import create_example_matrix_v3
+
+X, Y, C, W = create_example_matrix_v3()
+
+help(ssrge.fit) # see the specific documentation of the fit method
+ssrge.fit(X, Y, C)
+```
+
 * Rank eeSNVs:
 
 ```python
