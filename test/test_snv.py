@@ -38,28 +38,28 @@ class TestPackage(unittest.TestCase):
     def test_ref_genome(self):
         """assert that ref genome file exists"""
         for typ in TYPE_VAR:
-            self.assertTrue(isfile(TYPE_VAR['REF_GENOME']))
+            self.assertTrue(isfile(TYPE_VAR[typ]['REF_GENOME']))
 
     # def test_annotation_path(self):
     #     """assert that STAR ref folder exists"""
     #     for typ in TYPE_VAR:
     #         self.assertTrue(isdir(pathsplit(
-    #             TYPE_VAR['STAR_INDEX_PATH'])[0]))
+    #             TYPE_VAR[typ]['STAR_INDEX_PATH'])[0]))
 
     def test_gtf_file(self):
         """assert that GTF file exists"""
         for typ in TYPE_VAR:
-            self.assertTrue(isdir(TYPE_VAR['ANNOTATION_PATH']))
+            self.assertTrue(isdir(TYPE_VAR[typ]['ANNOTATION_PATH']))
 
     def test_dbsnp(self):
         """assert that dbsnp vcf file exists"""
         for typ in TYPE_VAR:
-            self.assertTrue(isfile(TYPE_VAR['DBSNP']))
+            self.assertTrue(isfile(TYPE_VAR[typ]['DBSNP']))
 
     def test_vcf_resources(self):
         """assert that additional vcf file exist"""
         for typ in TYPE_VAR:
-            for vcf in TYPE_VAR['VCF_RESOURCES']:
+            for vcf in TYPE_VAR[typ]['VCF_RESOURCES']:
                 self.assertTrue(isfile(vcf))
 
     def test_fastq_path(self):
