@@ -21,7 +21,7 @@ USER = 'opoirion'
 # (could be overloaded using reference paths)
 GLOBAL_DATA_ROOT = '/data/'
 # Alias to define the output folder
-OUTPUT_ROOT = '/data/'
+OUTPUT_ROOT = '/data/results/'
 # Alias to define the folder containing softwares.
 # (could be overloaded using reference paths)
 PROG_ROOT = '/prog/'
@@ -33,11 +33,11 @@ SOFT_PATH = "{0}/{1}/{1}.soft".format(GLOBAL_DATA_ROOT, PROJECT_NAME)
 TYPE_VAR = {
     'HUMAN': {
         # gtf file containing annotated human genes
-        'ANNOTATION_PATH': "/data/Illumina_hg19/genes.gtf",
+        'ANNOTATION_PATH': "/data/Illumina_hg19/Annotation/genes.gtf",
         # folder which will contains the STAR index using human genome
-        'STAR_INDEX_PATH': "/data/Illumina_hg19/Sequences/STARindex",
+        'STAR_INDEX_PATH': "{0}/Illumina_hg19/Sequences/STARindex".format(OUTPUT_ROOT),
         # folder which will contains the BSSEQ index using human genome
-        'BSSEQ_INDEX_PATH': "/data/Illumina_hg19/Sequences/BSSEQindex",
+        'BSSEQ_INDEX_PATH': "/data/Illumina_hg19/Sequences/BSSEQindex".format(OUTPUT_ROOT),
         # human reference fasta (.fa) file
         'REF_GENOME': "/data/Illumina_hg19/Sequences/WholeGenomeFasta/genome.fa",
         # Reference human genome used
@@ -58,9 +58,9 @@ TYPE_VAR = {
         # gtf file containing annotated mouse genes
         'ANNOTATION_PATH': "/data/Mus_musculus/UCSC/mm10/Annotation/genes.gtf",
         # folder which will contains the STAR index using mouse genome
-        'STAR_INDEX_PATH': "/data/Mus_musculus/UCSC/mm10/Sequence/STARindex",
+        'STAR_INDEX_PATH': "{0}/Mus_musculus/UCSC/mm10/Sequence/STARindex".format(OUTPUT_ROOT),
         # folder which will contains the BS-SEQ index using mouse genome
-        'BSSEQ_INDEX_PATH': "/data/Mus_musculus/UCSC/mm10/Sequence/BSSEQindex",
+        'BSSEQ_INDEX_PATH': "{0}/Mus_musculus/UCSC/mm10/Sequence/BSSEQindex".format(OUTPUT_ROOT),
         # Mouse reference fasta (.fa) file
         'REF_GENOME': "/data/mm10/Sequence/WholeGenomeFasta/genome.fa",
         # Reference mouse genome used

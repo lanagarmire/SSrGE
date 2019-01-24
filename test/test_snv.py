@@ -12,10 +12,7 @@ from os.path import split as pathsplit
 
 from garmire_SNV_calling.config import OUTPUT_ROOT
 
-from garmire_SNV_calling.config import REF_GENOME
-from garmire_SNV_calling.config import STAR_INDEX_PATH
-from garmire_SNV_calling.config import DBSNP
-from garmire_SNV_calling.config import VCF_RESOURCES
+from garmire_SNV_calling.config import TYPE_VAR
 from garmire_SNV_calling.config import FASTQ_PATH
 from garmire_SNV_calling.config import SPECIFIC_FILENAME_PATTERN as PATTERN
 
@@ -40,20 +37,30 @@ class TestPackage(unittest.TestCase):
 
     def test_ref_genome(self):
         """assert that ref genome file exists"""
-        self.assertTrue(isfile(REF_GENOME))
+        for typ in TYPE_VAR:
+            self.assertTrue(isfile(TYPE_VAR['REF_GENOME']))
 
     def test_annotation_path(self):
         """assert that STAR ref folder exists"""
-        self.assertTrue(isdir(pathsplit(STAR_INDEX_PATH)[0]))
+        for typ in TYPE_VAR:
+            self.assertTrue(isdir(pathsplit(
+                TYPE_VAR['STAR_INDEX_PATH'])[0]))
+
+    def test_gtf_file(self):
+        """assert that STAR ref folder exists"""
+        for typ in TYPE_VAR:
+            self.assertTrue(isdir(TYPE_VAR['ANNOTATION_PATH']))
 
     def test_dbsnp(self):
         """assert that dbsnp vcf file exists"""
-        self.assertTrue(isfile(DBSNP))
+        for typ in TYPE_VAR:
+            self.assertTrue(isfile(TYPE_VAR['DBSNP']))
 
     def test_vcf_resources(self):
         """assert that additional vcf file exist"""
-        for vcf in VCF_RESOURCES:
-            self.assertTrue(isfile(vcf))
+        for typ in TYPE_VAR:
+            for vcf in TYPE_VAR['VCF_RESOURCES']:
+                self.assertTrue(isfile(vcf))
 
     def test_fastq_path(self):
         """assert that fastq path exists"""
