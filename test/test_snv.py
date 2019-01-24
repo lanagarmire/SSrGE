@@ -40,14 +40,14 @@ class TestPackage(unittest.TestCase):
         for typ in TYPE_VAR:
             self.assertTrue(isfile(TYPE_VAR['REF_GENOME']))
 
-    def test_annotation_path(self):
-        """assert that STAR ref folder exists"""
-        for typ in TYPE_VAR:
-            self.assertTrue(isdir(pathsplit(
-                TYPE_VAR['STAR_INDEX_PATH'])[0]))
+    # def test_annotation_path(self):
+    #     """assert that STAR ref folder exists"""
+    #     for typ in TYPE_VAR:
+    #         self.assertTrue(isdir(pathsplit(
+    #             TYPE_VAR['STAR_INDEX_PATH'])[0]))
 
     def test_gtf_file(self):
-        """assert that STAR ref folder exists"""
+        """assert that GTF file exists"""
         for typ in TYPE_VAR:
             self.assertTrue(isdir(TYPE_VAR['ANNOTATION_PATH']))
 
@@ -73,7 +73,6 @@ class TestPackage(unittest.TestCase):
     def test_fastq_path_with_folders_with_fastqfile(self):
         """assert that fastq folder exists and that .fastq files are inside"""
 
-        i = 0
         for fastq_folder in listdir(FASTQ_PATH):
             if isfile(FASTQ_PATH + fastq_folder):
                 continue
