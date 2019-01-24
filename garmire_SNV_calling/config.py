@@ -101,7 +101,7 @@ SPECIFIC_FILENAME_PATTERN = ""
 ################ RRBS reads specific PREPROCESSING ###################
 # Used aligner (star for reads from gene expression
 # bismark / BS-seeker2 (RRBS read alignment))
-USED_ALIGNER = 'BS-seeker2'
+USED_ALIGNER = 'STAR'
 # Are the reads from the bislufite pipeline for SNV calling?
 ARE_READS_BISULFITE = False
 # specific trimming preprocessing for RRBS reads
