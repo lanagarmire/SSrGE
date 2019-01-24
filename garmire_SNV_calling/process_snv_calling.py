@@ -12,12 +12,10 @@ from subprocess import PIPE
 from glob import glob
 
 from distutils.dir_util import mkpath
-from shutil import rmtree
 from shutil import copyfile
-from shutil import move
+
 from sys import stdout as STDOUT
-from sys import argv
-from random import randint
+
 from random import random
 from time import sleep
 from time import time
@@ -28,6 +26,7 @@ from garmire_SNV_calling.config import JAVA
 from garmire_SNV_calling.config import JAVA_MEM
 from garmire_SNV_calling.config import PICARD_DIR
 from garmire_SNV_calling.config import GATK_DIR
+from garmire_SNV_calling.config import GATK_JAR
 from garmire_SNV_calling.config import PLATEFORM
 from garmire_SNV_calling.config import ORGANISM
 from garmire_SNV_calling.config import REF_GENOME
@@ -246,9 +245,9 @@ class ProcessSNVCalling():
         popen("rm {0}/split.ba*".format(self.tmppath)).read()
         self._run_cmd('echo "\n\n######## LAUNCHING CIGAR ########\n"')
 
-        cmd = "{0} {1} -jar {2}/GenomeAnalysisTK.jar -T SplitNCigarReads" \
+        cmd = "{0} {1} -jar {2}/{5} SplitNCigarReads" \
         " -I {3}/dedupped.bam" \
-        " -o {3}/split.bam" \
+        " -O {3}/split.bam" \
         " -R {4}" \
         " -rf ReassignOneMappingQuality" \
         " -RMQF 255" \
@@ -258,7 +257,8 @@ class ProcessSNVCalling():
                 JAVA_MEM,
                 GATK_DIR,
                 self.tmppath,
-                REF_GENOME
+                REF_GENOME,
+                GATK_JAR
         )
 
         self._run_cmd_fix_quality(cmd, to_rm='split.ba*')
@@ -271,7 +271,7 @@ class ProcessSNVCalling():
         self._run_cmd(
             'echo "\n\n######## LAUNCHING REALIGNER TARGET CREATOR ########\n"')
 
-        cmd = "{0} {1} -jar {2}/GenomeAnalysisTK.jar -T RealignerTargetCreator" \
+        cmd = "{0} {1} -jar {2}/{5} RealignerTargetCreator" \
         " -I {3}/split.bam" \
         " -o {3}/forRealigner.intervals"\
         " -R {4}" \
@@ -280,7 +280,8 @@ class ProcessSNVCalling():
                 JAVA_MEM,
                 GATK_DIR,
                 self.tmppath,
-                REF_GENOME
+                REF_GENOME,
+                GATK_JAR
               )
 
         for vcf in VCF_RESOURCES:
@@ -296,7 +297,7 @@ class ProcessSNVCalling():
         self._run_cmd(
             'echo "\n\n######## LAUNCHING REALIGNER INDEL ########\n"')
 
-        cmd = "{0} {1} -jar {2}/GenomeAnalysisTK.jar -T IndelRealigner" \
+        cmd = "{0} {1} -jar {2}/{5} IndelRealigner" \
         " -I {3}/split.bam" \
         " -targetIntervals {3}/forRealigner.intervals"\
         " --out {3}/realigned.bam" \
@@ -306,6 +307,7 @@ class ProcessSNVCalling():
                 GATK_DIR,
                 self.tmppath,
                 REF_GENOME,
+                GATK_JAR
               )
 
         for vcf in VCF_RESOURCES:
@@ -321,7 +323,7 @@ class ProcessSNVCalling():
         self._run_cmd(
             'echo "\n\n######## LAUNCHING RECALIBRATION STEP 1 ########\n"')
 
-        cmd = "{0} {1} -jar {2}/GenomeAnalysisTK.jar -T BaseRecalibrator" \
+        cmd = "{0} {1} -jar {2}/{5} BaseRecalibrator" \
         " -I {3}/realigned.bam" \
         " -o {3}/recal_data.csv" \
         " -R {4}" \
@@ -332,7 +334,8 @@ class ProcessSNVCalling():
                 GATK_DIR,
                 self.tmppath,
                 REF_GENOME,
-                DBSNP
+                DBSNP,
+                GATK_JAR
               )
 
         for vcf in VCF_RESOURCES:
@@ -348,7 +351,7 @@ class ProcessSNVCalling():
         self._run_cmd(
             'echo "\n\n######## LAUNCHING RECALIBRATION STEP 2 ########\n"')
 
-        cmd = "{0} {1} -jar {2}/GenomeAnalysisTK.jar -T PrintReads" \
+        cmd = "{0} {1} -jar {2}/{5} PrintReads" \
         " -I {3}/realigned.bam" \
         " --out {3}/recal.bam" \
         " -R {4}" \
@@ -358,7 +361,8 @@ class ProcessSNVCalling():
                 JAVA_MEM,
                 GATK_DIR,
                 self.tmppath,
-                REF_GENOME
+                REF_GENOME,
+                GATK_JAR
               )
 
         self._run_cmd_fix_quality(cmd, to_rm='recal.bam', resolve='hard')
@@ -371,7 +375,7 @@ class ProcessSNVCalling():
         self._run_cmd(
             'echo "\n\n######## LAUNCHING VARIANT CALLING ########\n"')
 
-        cmd = "{0} {1} -jar {2}/GenomeAnalysisTK.jar -T HaplotypeCaller" \
+        cmd = "{0} {1} -jar {2}/{6} HaplotypeCaller" \
         " -I {3}/recal.bam" \
         " -o {3}/snv_raw.vcf" \
         " -R {4}" \
@@ -384,7 +388,8 @@ class ProcessSNVCalling():
                 GATK_DIR,
                 self.tmppath,
                 REF_GENOME,
-                DBSNP
+                DBSNP,
+                GATK_JAR
               )
 
         self._run_cmd(cmd)
@@ -397,7 +402,7 @@ class ProcessSNVCalling():
         self._run_cmd(
             'echo "\n######## LAUNCHING VARIANT FILTERING ########\n"')
 
-        cmd = "{0} {1} -jar {2}/GenomeAnalysisTK.jar -T VariantFiltration" \
+        cmd = "{0} {1} -jar {2}/{5} VariantFiltration" \
         " -V {3}/snv_raw.vcf" \
         " -o {3}/snv_filtered.vcf" \
         " -R {4}" \
@@ -411,6 +416,7 @@ class ProcessSNVCalling():
                 GATK_DIR,
                 self.tmppath,
                 REF_GENOME,
+                GATK_JAR
               )
 
         self._run_cmd(cmd)
@@ -468,7 +474,7 @@ class ProcessSNVCalling():
         """ """
         try:
             self._run_cmd(cmd)
-        except Exception as e:
+        except Exception:
             self._run_cmd('echo "\n\nERROR DETECTED.' \
                           'Try correcting missencoded quality score"')
 
