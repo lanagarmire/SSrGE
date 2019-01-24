@@ -44,7 +44,7 @@ TYPE_VAR = {
         'ORGANISM': 'hg19',
         # reference variant database used. The last version can be downloaded from:
         # ftp://ftp.ncbi.nih.gov/snp/organisms/ (human_9607_b{version}_p2)
-        'DBSNP': "/data/hg19/vcf/dbsnp_138.hg19.reduced.vcf.gz",\
+        'DBSNP': "/data/hg19/vcf/dbsnp_138.hg19.reduced.vcf",\
         'VCF_RESOURCES': [
             # Other reference variant resources.
             # Can be downloaded from ftp://ftp.broadinstitute.org/bundle/2.8/hg19
@@ -67,7 +67,7 @@ TYPE_VAR = {
         'ORGANISM': 'mm10',
         # reference variant database used. This version can be downloaded from:
         # ftp://ftp-mouse.sanger.ac.uk/REL-1303- SNPs_Indels-GRCm38/.
-        'DBSNP': "/data/mm10/vcf/mgp.v3.snps.rsIDdbSNPv137_ordered.reduced.vcf.gz",
+        'DBSNP': "/data/mm10/vcf/mgp.v3.snps.rsIDdbSNPv137_ordered.reduced.vcf",
         # reference indel variant database used. This version can be downloaded from:
         # ftp://ftp-mouse.sanger.ac.uk/REL-1303- SNPs_Indels-GRCm38/.
         # Mouse VCF files must be sorted toward the sequence dictionnary of the mouse reference genome using SortVCF function from picard-tools
