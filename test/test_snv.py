@@ -49,7 +49,7 @@ class TestPackage(unittest.TestCase):
     def test_gtf_file(self):
         """assert that GTF file exists"""
         for typ in TYPE_VAR:
-            self.assertTrue(isdir(TYPE_VAR[typ]['ANNOTATION_PATH']))
+            self.assertTrue(isfile(TYPE_VAR[typ]['ANNOTATION_PATH']))
 
     def test_dbsnp(self):
         """assert that dbsnp vcf file exists"""
