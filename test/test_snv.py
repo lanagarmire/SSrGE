@@ -13,7 +13,6 @@ from garmire_SNV_calling.config import OUTPUT_ROOT
 from garmire_SNV_calling.config import SOFT_PATH
 
 from garmire_SNV_calling.config import REF_GENOME
-from garmire_SNV_calling.config import ANNOTATION_PATH
 from garmire_SNV_calling.config import STAR_INDEX_PATH
 from garmire_SNV_calling.config import DBSNP
 from garmire_SNV_calling.config import VCF_RESOURCES
@@ -34,9 +33,9 @@ class TestPackage(unittest.TestCase):
         """assert that OUTPUT_ROOT folder exists"""
         self.assertTrue(isdir(OUTPUT_ROOT))
 
-    def test_soft(self):
-        """assert that .soft file exists"""
-        self.assertTrue(isfile(SOFT_PATH))
+    # def test_soft(self):
+    #     """assert that .soft file exists"""
+    #     self.assertTrue(isfile(SOFT_PATH))
 
     def test_ref_genome(self):
         """assert that ref genome file exists"""

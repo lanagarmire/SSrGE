@@ -411,7 +411,6 @@ class ProcessSNVCalling():
                 GATK_DIR,
                 self.tmppath,
                 REF_GENOME,
-                DBSNP
               )
 
         self._run_cmd(cmd)
