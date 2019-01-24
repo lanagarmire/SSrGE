@@ -3,7 +3,7 @@ config file for SNV calling pipeline
 
 """
 # Project name. Used to create folder
-PROJECT_NAME = 'chung_notch_2016'
+PROJECT_NAME = '10x_sample_test'
 # type of the dataset (human or mouse). Used to select reference genomes
 CELL_TYPE = 'HUMAN'
 # valid sequencing machine for picard tools:
@@ -19,12 +19,12 @@ STAR_INDEX_READ_LENGTH = 51
 USER = 'opoirion'
 # Alias to define the root folder for reference data
 # (could be overloaded using reference paths)
-GLOBAL_DATA_ROOT = '/data/{0}/'.format(USER)
+GLOBAL_DATA_ROOT = '/data/'
 # Alias to define the output folder
-OUTPUT_ROOT = '/home/{0}/data/'.format(USER)
+OUTPUT_ROOT = '/data/'
 # Alias to define the folder containing softwares.
 # (could be overloaded using reference paths)
-PROG_ROOT = '/home/{0}/prog/'.format(USER)
+PROG_ROOT = '/prog/'
 # Absolute path for the .soft file (dataset description) from NCBI
 SOFT_PATH = "{0}/{1}/{1}.soft".format(GLOBAL_DATA_ROOT, PROJECT_NAME)
 ######################################################################
@@ -33,59 +33,46 @@ SOFT_PATH = "{0}/{1}/{1}.soft".format(GLOBAL_DATA_ROOT, PROJECT_NAME)
 TYPE_VAR = {
     'HUMAN': {
         # gtf file containing annotated human genes
-        'ANNOTATION_PATH': "{0}/Illumina_hg19/Annotation/genes.gtf"\
-        .format(GLOBAL_DATA_ROOT),
+        'ANNOTATION_PATH': "/data/hg19/genes.gtf",
         # folder which will contains the STAR index using human genome
-        'STAR_INDEX_PATH': "{0}/Illumina_hg19/Sequences/STARindex"\
-        .format(GLOBAL_DATA_ROOT),
+        'STAR_INDEX_PATH': "/data/hg19/Sequences/STARindex",
         # folder which will contains the BSSEQ index using human genome
-        'BSSEQ_INDEX_PATH': "{0}/Illumina_hg19/Sequences/BSSEQindex"\
-        .format(GLOBAL_DATA_ROOT),
+        'BSSEQ_INDEX_PATH': "/data/hg19/Sequences/BSSEQindex",
         # human reference fasta (.fa) file
-        'REF_GENOME': "{0}/Illumina_hg19/Sequences/WholeGenomeFasta/genome.fa"\
-        .format(GLOBAL_DATA_ROOT),
+        'REF_GENOME': "/data/hg19/Sequences/WholeGenomeFasta/genome.fa",
         # Reference human genome used
         'ORGANISM': 'hg19',
         # reference variant database used. The last version can be downloaded from:
         # ftp://ftp.ncbi.nih.gov/snp/organisms/ (human_9607_b{version}_p2)
-        'DBSNP': "{0}/Illumina_hg19/vcf/dbsnp_138.hg19.vcf"\
-        .format(GLOBAL_DATA_ROOT),\
+        'DBSNP': "/data/hg19/vcf/dbsnp_138.hg19.vcf",\
         'VCF_RESOURCES': [
             # Other reference variant resources.
             # Can be downloaded from ftp://ftp.broadinstitute.org/bundle/2.8/hg19
-            "{0}/Illumina_hg19/vcf/Mills_and_1000G_gold_standard.indels.hg19.sites.vcf"\
-            .format(GLOBAL_DATA_ROOT),
+            "/data/hg19/vcf/Mills_and_1000G_gold_standard.indels.hg19.sites.vcf",
             # Indel variant reference database
             # can be downloaded from ftp://ftp.broadinstitute.org/bundle/2.8/hg19
-            "{0}/Illumina_hg19/vcf/1000G_phase1.indels.hg19.sites.vcf"\
-            .format(GLOBAL_DATA_ROOT),
+            "/data/hg19/vcf/1000G_phase1.indels.hg19.sites.vcf",
             ]
     },
     'MOUSE': {
         # gtf file containing annotated mouse genes
-        'ANNOTATION_PATH': "{0}/Mus_musculus/UCSC/mm10/Annotation/genes.gtf"\
-        .format(GLOBAL_DATA_ROOT),
+        'ANNOTATION_PATH': "/data/mm10/Annotation/genes.gtf",
         # folder which will contains the STAR index using mouse genome
-        'STAR_INDEX_PATH': "{0}/Mus_musculus/UCSC/mm10/Sequence/STARindex"\
-        .format(GLOBAL_DATA_ROOT),
+        'STAR_INDEX_PATH': "/data/mm10/Sequence/STARindex",
         # folder which will contains the BS-SEQ index using mouse genome
-        'BSSEQ_INDEX_PATH': "{0}/Mus_musculus/UCSC/mm10/Sequence/BSSEQindex"\
-        .format(GLOBAL_DATA_ROOT),
+        'BSSEQ_INDEX_PATH': "/data/mm10/Sequence/BSSEQindex",
         # Mouse reference fasta (.fa) file
-        'REF_GENOME': "{0}/Mus_musculus/UCSC/mm10/Sequence/WholeGenomeFasta/genome.fa"\
-        .format(GLOBAL_DATA_ROOT),
+        'REF_GENOME': "/data/mm10/Sequence/WholeGenomeFasta/genome.fa",
         # Reference mouse genome used
         'ORGANISM': 'mm10',
         # reference variant database used. This version can be downloaded from:
         # ftp://ftp-mouse.sanger.ac.uk/REL-1303- SNPs_Indels-GRCm38/.
-        'DBSNP': "{0}/Mus_musculus/vcf/mgp.v3.snps.rsIDdbSNPv137_ordered.vcf"\
-        .format(GLOBAL_DATA_ROOT),
+        'DBSNP': "/data/mm10/vcf/mgp.v3.snps.rsIDdbSNPv137_ordered.vcf",
         # reference indel variant database used. This version can be downloaded from:
         # ftp://ftp-mouse.sanger.ac.uk/REL-1303- SNPs_Indels-GRCm38/.
         # Mouse VCF files must be sorted toward the sequence dictionnary of the mouse reference genome using SortVCF function from picard-tools
         'VCF_RESOURCES': [
-            "{0}/Mus_musculus/vcf/mgp.v3.indels.rsIDdbSNPv137_ordered.vcf"\
-            .format(GLOBAL_DATA_ROOT)
+            "/data/mm10/vcf/mgp.v3.indels.rsIDdbSNPv137_ordered.vcf"
             ]
     }
 }
@@ -128,7 +115,7 @@ MONOVAR_SAMTOOLS = '{0}/external/samtools/samtools'.format(MONOVAR_REP)
 
 ############# SOFTWARE ###############################################
 # Available java version. Must be > 1.8
-JAVA = "{0}/jdk1.8.0_77/bin/java".format(PROG_ROOT)
+JAVA = "java"
 # Max memory used by Java
 JAVA_MEM = "-Xmx110g"
 # GATK folder where can be found GATK software
