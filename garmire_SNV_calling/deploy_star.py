@@ -17,7 +17,6 @@ from sys import stdout
 from distutils.dir_util import mkpath
 
 from garmire_SNV_calling.config import FASTQ_PATH
-from garmire_SNV_calling.config import OUTPUT_PATH
 from garmire_SNV_calling.config import OUTPUT_PATH_STAR
 from garmire_SNV_calling.config import PATH_STAR_SOFTWARE \
     as PATH_SOFTWARE
@@ -28,9 +27,6 @@ from garmire_SNV_calling.config import SPECIFIC_FILENAME_PATTERN as PATTERN
 
 
 sleep(2 * random())
-
-if not isdir(OUTPUT_PATH):
-    mkpath(OUTPUT_PATH)
 
 if not isdir(OUTPUT_PATH_STAR):
     mkpath(OUTPUT_PATH_STAR)
