@@ -62,7 +62,7 @@ TYPE_VAR = {
         # folder which will contains the BS-SEQ index using mouse genome
         'BSSEQ_INDEX_PATH': "{0}/Mus_musculus/UCSC/mm10/Sequence/BSSEQindex".format(OUTPUT_ROOT),
         # Mouse reference fasta (.fa) file
-        'REF_GENOME': "/data/mm10/Sequence/WholeGenomeFasta/genome.fa",
+        'REF_GENOME': "/data/Mus_musculus/UCSC/mm10/Sequence/WholeGenomeFasta/genome.fa",
         # Reference mouse genome used
         'ORGANISM': 'mm10',
         # reference variant database used. This version can be downloaded from:

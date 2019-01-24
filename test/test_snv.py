@@ -67,7 +67,7 @@ class TestPackage(unittest.TestCase):
         self.assertTrue(isdir(FASTQ_PATH))
 
     def test_fastq_path_not_empty(self):
-        """assert that fastq path exists"""
+        """assert that fastq path not empty"""
         self.assertTrue(len(listdir(FASTQ_PATH)))
 
     def test_fastq_path_with_folders_with_fastqfile(self):
