@@ -205,9 +205,12 @@ class ProcessGATKSNV():
         self._launch_picard_markduplicates()
         self._launch_gatk_base_recalibrator(input_name='dedupped')
         self._launch_gatk_print_reads(input_name='dedupped')
-        self._launch_gatk_variant_calling()
-        self._launch_gatk_variant_filtering()
-        self._finish_process(ext="", out="_GATK")
+        self._launch_gatk_variant_calling(output_name='snv_raw_GATK.vcf')
+        self._launch_gatk_variant_filtering(
+            input_name='snv_raw_GATK.vcf',
+            output_name='snv_filtered_GATK.vcf')
+
+        self._finish_process(ext="_GATK", out="_GATK")
         self._rm_tmp_file()
 
     def _init_process(self):
@@ -271,6 +274,9 @@ class ProcessGATKSNV():
         self._run_cmd('echo "#### FINISHED ####'\
                       ' ALL PROCESS DONE FOR: {0} in {1} s"'\
                       .format(self.srr_to_process, time() - self.time_start))
+
+        if self.tmppath == self.respath and ext == out:
+            return
 
         if isfile(self.tmppath + '/snv_filtered{0}.vcf'.format(ext)):
             move(self.tmppath + '/snv_filtered{0}.vcf'.format(ext),
