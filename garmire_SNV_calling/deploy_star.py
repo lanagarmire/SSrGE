@@ -22,7 +22,7 @@ from garmire_SNV_calling.config import PATH_STAR_SOFTWARE \
 
 from garmire_SNV_calling.config import STAR_THREADS as THREADS
 
-from garmire_SNV_calling.server.single_cell_client import printf
+from garmire_SNV_calling.bash_utils import printf
 
 
 ############ VARIABLES ############################################

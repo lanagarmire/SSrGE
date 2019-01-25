@@ -3,6 +3,12 @@ from subprocess import call
 from sys import stdout as STDOUT
 
 
+def printf(msg):
+    """
+    """
+    print(msg)
+
+
 def exec_cmd(cmd, stdout=STDOUT):
     """
     """
