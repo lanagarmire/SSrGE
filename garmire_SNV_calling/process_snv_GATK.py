@@ -15,7 +15,7 @@ from shutil import copyfile
 
 from sys import stdout as STDOUT
 from sys import argv
-from random import randint
+
 from random import random
 from time import sleep
 from time import time
@@ -212,12 +212,11 @@ class ProcessGATKSNV():
     def _init_process(self):
         """mk tmp folders... """
         self.time_start = time()
-        self.tmppath = '{0}/tmp/{2}_{1}'.format(
-            self.output_path, self.id, self.srr_to_process)
+        self.tmppath = '{0}/{1}'.format(
+            self.output_path, self.srr_to_process)
 
         if not self.respath:
-            self.respath = self.output_path + \
-                           "/data/" + self.srr_to_process
+            self.respath = self.output_path  + self.srr_to_process
 
         sleep(2 * random())
         if not isdir(self.tmppath):
@@ -263,6 +262,17 @@ class ProcessGATKSNV():
         if not isdir(self.respath):
             mkpath(self.respath)
 
+        self.stdout.write('''\n #### FINISHED #### \n
+        ALL PROCESS DONE FOR: {0} in {1} s
+        '''.format(self.srr_to_process, time() - self.time_start))
+
+        self._run_cmd('echo "#### FINISHED ####'\
+                      ' ALL PROCESS DONE FOR: {0} in {1} s"'\
+                      .format(self.srr_to_process, time() - self.time_start))
+
+        if self.respath == self.tmppath:
+            return
+
         copyfile(self.tmppath + '/snv_filtered.vcf',
                  self.respath + '/snv_filtered_freebayes.vcf')
 
@@ -270,15 +280,8 @@ class ProcessGATKSNV():
             copyfile(self.tmppath + '/snv_filtered.vcf.idx',
                      self.respath  + '/snv_filtered_freebayes.vcf.idx')
 
-        self.stdout.write('''\n #### FINISHED #### \n
-ALL PROCESS DONE FOR: {0} in {1} s
-        '''.format(self.srr_to_process, time() - self.time_start))
-
         copyfile(self.tmppath + '/stdout.log',
                  self.respath + '/stdout.log')
-        self._run_cmd('echo "#### FINISHED ####'\
-                      ' ALL PROCESS DONE FOR: {0} in {1} s"'\
-                      .format(self.srr_to_process, time() - self.time_start))
 
     def _launch_picard_readgroups(self):
         """
@@ -642,11 +645,24 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         """
         if isdir(self.tmppath) and self.clean_tmp:
-            cmd = 'rm -rf {0}'.format(self.tmppath)
-            try:
-                self._run_cmd(cmd)
-            except Exception as e:
-                print('#### error while trying to remove the tmp folder: {0}'\
+            for fil in glob('{0}'.format(self.tmppath)):
+                if fil.count("snv_filtered") or fil.count("stdout.log"):
+                    continue
+                cmd = "rm {0}".format(fil)
+
+                try:
+                    self._run_cmd(cmd)
+                except Exception as e:
+                    print('#### error while trying to remove the tmp file: {0}'\
+                          .format(e))
+
+        if self.tmppath != self.respath:
+            cmd = "rm -rf {0}".format(self.tmppath)
+
+        try:
+            self._run_cmd(cmd)
+        except Exception as e:
+            print('#### error while trying to remove the tmp folder: {0}'\
                   .format(e))
 
     def _run_cmd(self, cmd):

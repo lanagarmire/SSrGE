@@ -5,7 +5,6 @@
 from multiprocessing import Process
 from multiprocessing import Queue
 
-from random import randint
 from time import sleep
 from os import listdir
 from os.path import isfile
