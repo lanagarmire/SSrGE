@@ -138,7 +138,7 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
             output_name='snv_filtered_GATK.vcf')
 
         self._finish_process(ext="_GATK", out="_GATK")
-        self._finish_process(ext="", out="_freebayes")
+        self._finish_process(ext="_freebayes", out="_freebayes")
         self._rm_tmp_file()
 
     def _init_process_gatk(self):
@@ -197,7 +197,7 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
         """
         """
         if self.check_if_output_exists(
-            "{0}/snv_filtered.vcf".format(self.tmppath)):
+            "{0}/snv_filtered_freebayes.vcf".format(self.tmppath)):
             return
 
         self._run_cmd(
@@ -217,7 +217,7 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
         self._run_cmd(
             'echo "\n## freebayes done in {0} s##\n"'.format(time() - start_time))
 
-        assert(isfile("{0}/snv_filtered.vcf".format(self.tmppath)))
+        assert(isfile("{0}/snv_filtered_freebayes.vcf".format(self.tmppath)))
 
 if __name__ == '__main__':
     main()
