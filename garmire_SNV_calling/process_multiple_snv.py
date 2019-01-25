@@ -15,7 +15,7 @@ from shutil import rmtree as rmdir
 from garmire_SNV_calling.process_snv_GATK import ProcessGATKSNV
 from garmire_SNV_calling.process_freebayes import ProcessFreebayesCaller
 
-from garmire_SNV_calling.config import NB_PROCESS_GATK as NB_PROCESS
+from garmire_SNV_calling.config import NB_PROCESS_SNV as NB_PROCESS
 from garmire_SNV_calling.config import PATH_OUTPUT
 
 from garmire_SNV_calling.config import OUTPUT_PATH_GATK
