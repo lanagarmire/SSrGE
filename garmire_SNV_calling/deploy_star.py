@@ -1,88 +1,179 @@
 #!/usr/bin/python
-
 from fnmatch import fnmatch
 
-from os import popen
 from os import listdir
 from os import mkdir
 from os.path import isdir
 from os.path import isfile
 from os.path import getsize
 
+from SNV_pipeline.bash_utils import exec_cmd
+
 from time import sleep
 from random import random
+from sys import argv
 
-from sys import stdout
+from os import popen
 
 from distutils.dir_util import mkpath
 
-from garmire_SNV_calling.config import FASTQ_PATH
-from garmire_SNV_calling.config import OUTPUT_PATH_STAR
 from garmire_SNV_calling.config import PATH_STAR_SOFTWARE \
     as PATH_SOFTWARE
-from garmire_SNV_calling.config import STAR_INDEX_PATH
-from garmire_SNV_calling.config import STAR_INDEX_READ_LENGTH
+
 from garmire_SNV_calling.config import STAR_THREADS as THREADS
-from garmire_SNV_calling.config import SPECIFIC_FILENAME_PATTERN as PATTERN
+
+from garmire_SNV_calling.server.single_cell_client import printf
 
 
-sleep(2 * random())
+############ VARIABLES ############################################
+if "--specific_folder" in argv:
+    PATTERN = argv[
+        argv.index("--specific_folder") + 1]
+else:
+    from garmire_SNV_calling.config import SPECIFIC_FILENAME_PATTERN as PATTERN
 
-if not isdir(OUTPUT_PATH_STAR):
-    mkpath(OUTPUT_PATH_STAR)
+if "--fastq_path" in argv:
+    FASTQ_PATH = argv[
+        argv.index("--fastq_path") + 1]
+else:
+    from garmire_SNV_calling.config import FASTQ_PATH
+
+if "--star_index_path" in argv:
+    STAR_INDEX_PATH = argv[
+        argv.index("--star_index_path") + 1]
+else:
+    from garmire_SNV_calling.config import STAR_INDEX_PATH
+
+if "--star_index_read_length" in argv:
+    STAR_INDEX_READ_LENGTH = argv[
+        argv.index("--star_index_read_length") + 1]
+else:
+    from garmire_SNV_calling.config import STAR_INDEX_READ_LENGTH
+
+if "--output_path_star" in argv:
+    OUTPUT_PATH = argv[
+        argv.index("--output_path_star") + 1]
+else:
+    from garmire_SNV_calling.config import OUTPUT_PATH_STAR \
+        as OUTPUT_PATH
+
+if "--simulated_ref_genome" in argv:
+    SIMULATED_REF_GENOME = argv[
+        argv.index("--simulated_ref_genome") + 1]
+else:
+    from garmire_SNV_calling.config import SIMULATED_REF_GENOME
+
+###################################################################
 
 
-def main():
-    for fil in listdir(FASTQ_PATH):
+def star_analysis(
+        output_path=OUTPUT_PATH,
+        fastq_path=FASTQ_PATH,
+        pattern=PATTERN,
+        star_index_path=STAR_INDEX_PATH,
+        star_index_read_length=STAR_INDEX_READ_LENGTH,
+        simulated_ref_genome=SIMULATED_REF_GENOME,
+        path_software=PATH_SOFTWARE,
+        threads=THREADS,
+        cufflinks_compatibility=None,
+        custom_star_index_name=True,
+        stdout=None,
+        printf=printf):
+    """
+    """
+    sleep(2 * random())
 
-        if isfile(FASTQ_PATH + fil):
+    options = ''
+
+    if cufflinks_compatibility:
+        options = '--outSAMstrandField intronMotif'\
+                  ' --outFilterIntronMotifs RemoveNoncanonical'
+
+    if not isdir(output_path):
+        mkpath(output_path)
+
+    for fil in listdir(fastq_path):
+        if isfile(fastq_path + '/' + fil):
             continue
 
-        if PATTERN and not fnmatch(fil, PATTERN):
+        if pattern and not fnmatch(fil, pattern):
             continue
 
-        print("====> file to be aligned:", fil)
+        printf("====> file to be aligned: {0}".format(fil))
 
-        if not isdir(OUTPUT_PATH_STAR + fil):
-            mkdir(OUTPUT_PATH_STAR + fil)
+        if not isdir(output_path + fil):
+            mkdir(output_path + fil)
 
-        if isfile(OUTPUT_PATH_STAR + fil + "/Aligned.sortedByCoord.out.bam") \
-           and getsize(OUTPUT_PATH_STAR + fil + "/Aligned.sortedByCoord.out.bam"):
-            print('bam file result alreay exists for:{0}\nskipping...'\
+        if isfile(output_path + fil + "/Aligned.sortedByCoord.out.bam") \
+           and getsize(output_path + fil + "/Aligned.sortedByCoord.out.bam"):
+            printf('bam file result alreay exists for:{0}\nskipping...'\
                 .format(fil))
             continue
 
         fastq_str = ""
 
-        for fastq_fil in listdir(FASTQ_PATH + fil):
-            print(fastq_fil)
+        for fastq_fil in sorted(listdir(fastq_path + '/' +  fil)):
             if fnmatch(fastq_fil, "*.fastq"):
-                fastq_str += "{0}{1}/{2} ".format(FASTQ_PATH, fil, fastq_fil)
+                fastq_str += "{0}/{1}/{2} ".format(fastq_path, fil, fastq_fil)
 
         if not fastq_str:
-            print('no fastq file found for:{0}!\nskipping'.format(fil))
+            printf('no fastq file found for:{0}!\nskipping'.format(fil))
             continue
 
-        star_index_path = "{0}READ{1}".format(STAR_INDEX_PATH.rstrip('/'),
-                                              STAR_INDEX_READ_LENGTH)
+        if custom_star_index_name:
+            star_index_path_ready = "{0}READ{1}".format(star_index_path.rstrip('/'),
+                                                        star_index_read_length)
+
+            if simulated_ref_genome:
+                    star_index_path_ready = star_index_path_ready.rstrip('/') \
+                          + 'SIM{0}/'.format(simulated_ref_genome)
+        else:
+            star_index_path_ready = star_index_path
+
+        tmp_path = '{0}/_STARtmp'.format(output_path + '/' + fil + "/")
+
+        if isdir(tmp_path):
+            exec_cmd('rm -r {0}'.format(tmp_path), stdout)
 
         cmd = "{0} --readFilesIn {1} --runThreadN {2}"\
               " --twopassMode Basic --outSAMtype BAM SortedByCoordinate" \
-              "  --outFileNamePrefix {3} --genomeDir {4}"\
-              .format(PATH_SOFTWARE,
+              "  --outTmpDir {5} --outFileNamePrefix {3} --genomeDir {4} {6}"\
+              .format(path_software,
                       fastq_str,
-                      THREADS,
-                      OUTPUT_PATH_STAR + fil + "/",
-                      star_index_path
+                      threads,
+                      output_path + '/' + fil + "/",
+                      star_index_path_ready,
+                      tmp_path,
+                      options
               )
 
-        res = popen(cmd)
-        c = res.read(1)
+        printf('star cmd to be launched:{0}'.format(cmd))
+        exec_cmd(cmd, stdout)
 
-        while c:
-            stdout.write(c)
-            stdout.flush()
-            c = res.read(1)
+def check_star_folder(new_star_path):
+    """
+    """
+    if isfile('{0}/star_aligned_successfull.log'.format(new_star_path)):
+        return '#### STAR already aligned successfully in: {0}'.format(new_star_path)
+
+def clean_star_folder(path_star_results):
+    """
+    """
+    path_bam = '{0}/Aligned.sortedByCoord.out.bam'.format(path_star_results)
+    path_log_final = '{0}/Log.final.out'.format(path_star_results)
+    path_sj = '{0}/SJ.out.tab'.format(path_star_results)
+
+    assert(isfile(path_bam) and isfile(path_log_final) and isfile(path_sj))
+
+    popen('rm -r {0}/_STAR*'.format(path_star_results)).read()
+    popen('rm -r {0}/Log.out'.format(path_star_results)).read()
+    popen('rm -r {0}/Log.progress.out'.format(path_star_results)).read()
+
+    f_log = open('{0}/star_aligned_successfull.log'.format(path_star_results), 'w')
+    f_log.write('STAR successfull')
+
+    return
+
 
 if __name__ == "__main__":
-    main()
+    star_analysis()
