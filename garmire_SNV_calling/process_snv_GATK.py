@@ -475,7 +475,7 @@ ALL PROCESS DONE FOR: {0} in {1} s
         self._run_cmd(
             'echo "\n\n######## LAUNCHING RECALIBRATION STEP 1 ########\n"')
 
-        cmd = "{0} {1} -jar {2}/{6} -T BaseRecalibrator" \
+        cmd = "{0} {1} -jar {2}/{7} -T BaseRecalibrator" \
         " -I {3}/{6}.bam" \
         " -o {3}/recal_data.csv" \
         " -R {4}" \
