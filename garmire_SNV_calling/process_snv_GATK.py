@@ -45,38 +45,38 @@ if "--path_to_data" in argv:
         argv.index("--path_to_data") + 1]
     OUTPUT_PATH =  PATH_TO_DATA + '/snv_pipeline_raw/'
 else:
-    from SNV_pipeline.config import PATH_TO_DATA
-    from SNV_pipeline.config import OUTPUT_PATH_GATK as OUTPUT_PATH
+    from garmire_SNV_calling.config import PATH_TO_DATA
+    from garmire_SNV_calling.config import OUTPUT_PATH_GATK as OUTPUT_PATH
 
 if "--plateform" in argv:
     PLATEFORM = argv[
         argv.index("--plateform") + 1]
 else:
-    from SNV_pipeline.config import PLATEFORM
+    from garmire_SNV_calling.config import PLATEFORM
 
 if "--organism" in argv:
     ORGANISM = argv[
         argv.index("--organism") + 1]
 else:
-    from SNV_pipeline.config import ORGANISM
+    from garmire_SNV_calling.config import ORGANISM
 
 if "--ref_genome" in argv:
     REF_GENOME = argv[
         argv.index("--ref_genome") + 1]
 else:
-    from SNV_pipeline.config import REF_GENOME
+    from garmire_SNV_calling.config import REF_GENOME
 
 if "--dbsnp" in argv:
     DBSNP = argv[
         argv.index("--dbsnp") + 1]
 else:
-    from SNV_pipeline.config import DBSNP
+    from garmire_SNV_calling.config import DBSNP
 
 if "--vcf_resources" in argv:
     VCF_RESOURCES = eval(argv[
         argv.index("--vcf_resources") + 1])
 else:
-    from SNV_pipeline.config import VCF_RESOURCES
+    from garmire_SNV_calling.config import VCF_RESOURCES
 
 
 if "--ignore_already_exists" in argv:
