@@ -136,6 +136,7 @@ class ProcessGATKSNV():
         self.plateform = plateform
         self.organism = organism[:]
         self.ignore_already_exists = ignore_already_exists
+        self.gatk_jar = gatk_jar
 
         if self.organism == 'HUMAN':
             self.organism = 'hg19'
