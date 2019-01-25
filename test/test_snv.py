@@ -21,6 +21,7 @@ from garmire_SNV_calling.config import GATK_JAR
 from garmire_SNV_calling.config import PICARD_DIR
 from garmire_SNV_calling.config import PATH_STAR_SOFTWARE
 from garmire_SNV_calling.config import SAMTOOLS
+from garmire_SNV_calling.config import FREEBAYES
 
 from fnmatch import fnmatch
 
@@ -98,6 +99,10 @@ class TestPackage(unittest.TestCase):
         self.assertTrue(isfile('{0}/{1}'.format(GATK_DIR, GATK_JAR)))
 
     def test_freebayes(self):
+        """assert that freebayes file exists"""
+        self.assertTrue(isfile(FREEBAYES))
+
+    def test_samtools(self):
         """assert that freebayes file exists"""
         self.assertTrue(isfile(SAMTOOLS))
 
