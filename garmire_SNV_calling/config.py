@@ -164,7 +164,7 @@ OUTPUT_PATH_STAR = PATH_OUTPUT + "/star/"
 
 ############ SNV CALLING PIPELINE ###################################
 # output path for SNVs inferred
-OUTPUT_PATH_SNV =  PATH_OUTPUT + '/snv_pipeline_GATK/'
+OUTPUT_PATH_GATK =  PATH_OUTPUT + '/snv_pipeline_GATK/'
 # Number of SNV calling processes launched in parallel
 NB_PROCESS_SNV = 3
 ####################################################################
