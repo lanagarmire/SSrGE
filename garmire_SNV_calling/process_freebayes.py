@@ -167,8 +167,9 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
     def _process_samtools_calmd(self, bam_input="Aligned.sortedByCoord.out.bam"):
         """
         """
-        if isfile("{0}/md.bam".format(self.tmppath)):
-            popen("rm {0}/md.bam".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/md.bam".format(self.tmppath)):
+            return
 
         self._run_cmd(
             'echo "\n\n######## LAUNCHING SAMTOOLS CALMD ########\n"')
@@ -191,8 +192,9 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
         """
              " --SoftClipsExist True --KeepMismatches True " \
         """
-        if isfile("{0}/opossum.bam".format(self.tmppath)):
-            popen("rm {0}/opossum.bam".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/opossum.bam".format(self.tmppath)):
+            return
 
         self._run_cmd(
             'echo "\n\n######## LAUNCHING opossum ########\n"')
@@ -210,8 +212,9 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
     def _process_freebayes(self, bam_input="clean.bam"):
         """
         """
-        if isfile("{0}/snv_filtered.vcf".format(self.tmppath)):
-            popen("rm {0}/snv_filtered.vcf".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/snv_filtered.vcf".format(self.tmppath)):
+            return
 
         self._run_cmd(
             'echo "\n\n######## LAUNCHING freebayes ########\n"')

@@ -284,7 +284,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         launch picard AddOrReplaceReadGroups
         """
-        popen("rm {0}/rg_added_sorted.bam".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/rg_added_sorted.bam".format(self.tmppath)):
+            return
+
         self._run_cmd(
             'echo "\n\n######## LAUNCHING PICARD READGROUPS ########\n"')
 
@@ -311,7 +314,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         launch picard MarkDuplicates
         """
-        popen("rm {0}/dedupped.bam".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/dedupped.bam".format(self.tmppath)):
+            return
+
         self._run_cmd(
             'echo "\n\n######## LAUNCHING PICARD MARKDUPLICATES ########\n"')
 
@@ -332,7 +338,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         launch picard buildbamindex
         """
-        popen("rm {0}/{1}.bai".format(self.tmppath, name)).read()
+        if self.check_if_output_exists(
+            "{0}/{1}.bai".format(self.tmppath, name)):
+            return
+
         self._run_cmd(
             'echo "\n\n######## LAUNCHING PICARD BuildBamIndex ########\n"')
 
@@ -351,7 +360,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         launch picard SORTSAM
         """
-        popen("rm {0}/sorted.bam".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/sorted.bam".format(self.tmppath)):
+            return
+
         self._run_cmd(
             'echo "\n\n######## LAUNCHING PICARD REORDERSAM ########\n"')
 
@@ -372,7 +384,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         launch picard REORDERSAM
         """
-        popen("rm {0}/reordered.bam".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/reordered.bam".format(self.tmppath)):
+            return
+
         self._run_cmd(
             'echo "\n\n######## LAUNCHING PICARD REORDERSAM ########\n"')
 
@@ -393,7 +408,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         Running cigar string split and mapq 255 fix GATK
         """
-        popen("rm {0}/split.ba*".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/split.ba*".format(self.tmppath)):
+            return
+
         self._run_cmd('echo "\n\n######## LAUNCHING CIGAR ########\n"')
 
         cmd = "{0} {1} -jar {2}/{5} -T SplitNCigarReads" \
@@ -418,7 +436,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         Running Realignment Target creator
         """
-        popen("rm {0}/forRealigner.intervals".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/forRealigner.intervals".format(self.tmppath)):
+            return
+
         self._run_cmd(
             'echo "\n\n######## LAUNCHING REALIGNER TARGET CREATOR ########\n"')
 
@@ -445,7 +466,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         Running Realignment
         """
-        popen("rm {0}/realigned.bam".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/realigned.bam".format(self.tmppath)):
+            return
+
         self._run_cmd(
             'echo "\n\n######## LAUNCHING REALIGNER INDEL ########\n"')
 
@@ -471,7 +495,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         Running base recalibration
         """
-        popen("rm {0}/recal_data.csv".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/recal_data.csv".format(self.tmppath)):
+            return
+
         self._run_cmd(
             'echo "\n\n######## LAUNCHING RECALIBRATION STEP 1 ########\n"')
 
@@ -500,7 +527,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         Running base recalibration STEP 2
         """
-        popen("rm {0}/recal.bam".format(self.tmppath)).read()
+        if self.check_if_output_exists(
+            "{0}/recal.bam".format(self.tmppath)):
+            return
+
         self._run_cmd(
             'echo "\n\n######## LAUNCHING RECALIBRATION STEP 2 ########\n"')
 
@@ -525,7 +555,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         variant calling
         """
-        popen("rm {0}/{1}".format(self.tmppath, output_name)).read()
+        if self.check_if_output_exists(
+            "{0}/{1}".format(self.tmppath, output_name)):
+            return
+
         self._run_cmd(
             'echo "\n\n######## LAUNCHING VARIANT CALLING ########\n"')
 
@@ -563,7 +596,10 @@ ALL PROCESS DONE FOR: {0} in {1} s
         """
         variant filtering
         """
-        popen("rm {0}/{1}".format(self.tmppath, output_name)).read()
+        if self.check_if_output_exists(
+            "{0}/{1}".format(self.tmppath, output_name)):
+            return
+
         self._run_cmd(
             'echo "\n######## LAUNCHING VARIANT FILTERING ########\n"')
 
@@ -593,6 +629,14 @@ ALL PROCESS DONE FOR: {0} in {1} s
         self._run_cmd(
             'echo "\n## GATK variant filtering done in {0} s##\n"'.format(
                 time() - start_time))
+
+    def check_if_output_exists(self, outfile):
+        """
+        """
+        if isfile(outfile) and not self.clean_tmp:
+            return True
+        else:
+            popen('rm {0}'.format(outfile)).read()
 
     def _rm_tmp_file(self):
         """
