@@ -8,7 +8,6 @@ from commands import getstatusoutput
 
 from os.path import isfile
 from os.path import isdir
-from os.path import split as pathsplit
 
 from garmire_SNV_calling.config import OUTPUT_ROOT
 
@@ -21,6 +20,7 @@ from garmire_SNV_calling.config import GATK_DIR
 from garmire_SNV_calling.config import GATK_JAR
 from garmire_SNV_calling.config import PICARD_DIR
 from garmire_SNV_calling.config import PATH_STAR_SOFTWARE
+from garmire_SNV_calling.config import SAMTOOLS
 
 from fnmatch import fnmatch
 
@@ -96,6 +96,10 @@ class TestPackage(unittest.TestCase):
     def test_GATK(self):
         """assert that GATK .jar file exists"""
         self.assertTrue(isfile('{0}/{1}'.format(GATK_DIR, GATK_JAR)))
+
+    def test_freebayes(self):
+        """assert that freebayes file exists"""
+        self.assertTrue(isfile(SAMTOOLS))
 
     def test_picard_tools(self):
         """assert that picard-tools .jar files exist"""

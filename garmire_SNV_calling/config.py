@@ -153,6 +153,8 @@ SNPEFF = '{0}/snpEff/snpEff.jar'.format(PROG_ROOT)
 SNPEFF_DICT = {'MOUSE': 'GRCm38.82',
                'HUMAN': 'GRCh37.75'}
 SNPEFF_DB = SNPEFF_DICT[CELL_TYPE]
+# SAMtools
+SAMTOOLS = '{0}/samtools-1.5/bin/samtools'.format(PROG_ROOT)
 ######################################################################
 
 #############  STAR #################################################
