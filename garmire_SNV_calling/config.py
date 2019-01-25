@@ -2,6 +2,10 @@
 config file for SNV calling pipeline
 
 """
+
+from os.path import split as pathsplit
+
+
 # Project name. Used to create folder
 PROJECT_NAME = '10x_sample_test'
 # type of the dataset (human or mouse). Used to select reference genomes
@@ -178,4 +182,22 @@ FEATURE_COUNT = "featureCounts"
 # path for gene expression matrices [OPTIONAL]
 MATRIX_OUTPUT_PATH = "{0}/{1}/expression_profile/"\
                      .format(OUTPUT_ROOT, PROJECT_NAME)
+###############################################################################
+
+
+######################## SNV SIMULATION #######################################
+SIMULATED_REF_GENOME = 50000
+
+if SIMULATED_REF_GENOME:
+    MUTATION_FILE = '{0}/Simulated{1}Mut/sim_snv.bed'.format(
+        pathsplit(pathsplit(REF_GENOME)[0])[0], SIMULATED_REF_GENOME)
+    SEQUENCES_PATH = pathsplit(pathsplit(REF_GENOME)[0])[0]
+    SIM_GENOME_DIR = '{0}/Simulated{1}Mut/'.format(SEQUENCES_PATH, SIMULATED_REF_GENOME)
+    REF_GENOME_ORIGINAL = REF_GENOME[:]
+    REF_GENOME = '{0}/genome.fa'.format(SIM_GENOME_DIR)
+else:
+    MUTATION_FILE = None
+    SEQUENCES_PATH = None
+    SIM_GENOME_DIR = None
+    REF_GENOME_ORIGINAL = None
 ###############################################################################
