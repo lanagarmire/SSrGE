@@ -41,9 +41,9 @@ if '--limit'  in argv:
 else:
     LIMIT = None
 
-if "--nb_process" in argv:
+if "--nb_processes" in argv:
     NB_PROCESS = eval(argv[
-        argv.index("--nb_process") + 1])
+        argv.index("--nb_processes") + 1])
 else:
     from garmire_SNV_calling.config import NB_PROCESS_SNV as NB_PROCESS
 ################################################
