@@ -411,7 +411,7 @@ class ProcessGATKSNV():
         Running cigar string split and mapq 255 fix GATK
         """
         if self.check_if_output_exists(
-            "{0}/split.ba*".format(self.tmppath)):
+            "{0}/split.bam".format(self.tmppath)):
             return
 
         self._run_cmd('echo "\n\n######## LAUNCHING CIGAR ########\n"')
