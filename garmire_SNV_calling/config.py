@@ -125,7 +125,7 @@ JAVA_MEM = "-Xmx110g"
 # GATK folder where can be found GATK software
 GATK_DIR = "{0}/GATK/".format(PROG_ROOT)
 # GATK jar name
-GATK_JAR = "gatk-package-4.0.11.0-local.jar"
+GATK_JAR = "GenomeAnalysisTK.jar"
 # picard-tools software
 PICARD_DIR = "{0}/picard-tools-2.1.1/".format(PROG_ROOT)
 # Perl
