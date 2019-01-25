@@ -396,9 +396,9 @@ ALL PROCESS DONE FOR: {0} in {1} s
         popen("rm {0}/split.ba*".format(self.tmppath)).read()
         self._run_cmd('echo "\n\n######## LAUNCHING CIGAR ########\n"')
 
-        cmd = "{0} {1} -jar {2}/{5} SplitNCigarReads" \
+        cmd = "{0} {1} -jar {2}/{5} -T SplitNCigarReads" \
         " -I {3}/dedupped.bam" \
-        " -O {3}/split.bam" \
+        " -o {3}/split.bam" \
         " -R {4}" \
         " -rf ReassignOneMappingQuality" \
         " -RMQF 255" \
@@ -422,9 +422,9 @@ ALL PROCESS DONE FOR: {0} in {1} s
         self._run_cmd(
             'echo "\n\n######## LAUNCHING REALIGNER TARGET CREATOR ########\n"')
 
-        cmd = "{0} {1} -jar {2}/{6} RealignerTargetCreator" \
+        cmd = "{0} {1} -jar {2}/{6} -T RealignerTargetCreator" \
         " -I {3}/{5}" \
-        " -O {3}/forRealigner.intervals"\
+        " -o {3}/forRealigner.intervals"\
         " -R {4}" \
         " -nt 20 " \
         .format(self.java,
@@ -449,7 +449,7 @@ ALL PROCESS DONE FOR: {0} in {1} s
         self._run_cmd(
             'echo "\n\n######## LAUNCHING REALIGNER INDEL ########\n"')
 
-        cmd = "{0} {1} -jar {2}/{5} IndelRealigner" \
+        cmd = "{0} {1} -jar {2}/{5} -T IndelRealigner" \
         " -I {3}/split.bam" \
         " -targetIntervals {3}/forRealigner.intervals"\
         " --out {3}/realigned.bam" \
@@ -475,12 +475,12 @@ ALL PROCESS DONE FOR: {0} in {1} s
         self._run_cmd(
             'echo "\n\n######## LAUNCHING RECALIBRATION STEP 1 ########\n"')
 
-        cmd = "{0} {1} -jar {2}/{6} BaseRecalibrator" \
+        cmd = "{0} {1} -jar {2}/{6} -T BaseRecalibrator" \
         " -I {3}/{6}.bam" \
-        " -O {3}/recal_data.csv" \
+        " -o {3}/recal_data.csv" \
         " -R {4}" \
         " -nct 20" \
-        " --known-sites {5}" \
+        " --knownSites {5}" \
         .format(self.java,
                 self.java_mem,
                 self.gatk_dir,
@@ -492,7 +492,7 @@ ALL PROCESS DONE FOR: {0} in {1} s
               )
 
         for vcf in self.vcf_resources:
-            cmd += " --known-sites {0}".format(vcf)
+            cmd += " --knownSites {0}".format(vcf)
 
         self._run_cmd_fix_quality(cmd, to_rm='recal_data.csv', resolve='hard')
 
@@ -504,7 +504,7 @@ ALL PROCESS DONE FOR: {0} in {1} s
         self._run_cmd(
             'echo "\n\n######## LAUNCHING RECALIBRATION STEP 2 ########\n"')
 
-        cmd = "{0} {1} -jar {2}/{6} PrintReads" \
+        cmd = "{0} {1} -jar {2}/{6} -T PrintReads" \
         " -I {3}/{5}.bam" \
         " --out {3}/recal.bam" \
         " -R {4}" \
@@ -531,9 +531,9 @@ ALL PROCESS DONE FOR: {0} in {1} s
 
         start_time = time()
 
-        cmd = "{0} {1} -jar {2}/{7} HaplotypeCaller" \
+        cmd = "{0} {1} -jar {2}/{7} -T HaplotypeCaller" \
         " -I {3}/recal.bam" \
-        " -O {3}/{6}" \
+        " -o {3}/{6}" \
         " -R {4}" \
         " --dbsnp {5}" \
         " -dontUseSoftClippedBases" \
@@ -569,9 +569,9 @@ ALL PROCESS DONE FOR: {0} in {1} s
 
         start_time = time()
 
-        cmd = "{0} {1} -jar {2}/{7} VariantFiltration" \
+        cmd = "{0} {1} -jar {2}/{7} -T VariantFiltration" \
         " -V {3}/{5}" \
-        " -O {3}/{6}" \
+        " -o {3}/{6}" \
         " -R {4}" \
         " -cluster 3" \
         " -filterName FS" \
