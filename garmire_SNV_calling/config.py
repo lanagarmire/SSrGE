@@ -186,7 +186,7 @@ MATRIX_OUTPUT_PATH = "{0}/{1}/expression_profile/"\
 
 
 ######################## SNV SIMULATION #######################################
-SIMULATED_REF_GENOME = 50000
+SIMULATED_REF_GENOME = none
 
 if SIMULATED_REF_GENOME:
     MUTATION_FILE = '{0}/Simulated{1}Mut/sim_snv.bed'.format(
