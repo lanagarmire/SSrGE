@@ -115,8 +115,8 @@ class TrSNVMultiprocessing(Process):
     def __init__(self, input_queue, id):
         self.input_queue = input_queue
         self.id = id
-        self.process_snv = SNVCLASS(id=self.id)
         Process.__init__(self)
+        self.process_snv = SNVCLASS(id=self.id)
 
     def run(self):
         while self.input_queue.qsize():
