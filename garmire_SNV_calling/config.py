@@ -160,9 +160,15 @@ OUTPUT_PATH_STAR = PATH_OUTPUT + "/star/"
 
 ############ SNV CALLING PIPELINE ###################################
 # output path for SNVs inferred
-OUTPUT_PATH_SNV =  PATH_OUTPUT + '/snv_pipeline_results/'
+OUTPUT_PATH_SNV =  PATH_OUTPUT + '/snv_pipeline_GATK/'
 # Number of SNV calling processes launched in parallel
 NB_PROCESS_SNV = 3
+####################################################################
+
+########### FREEBAYES SNV CALLING PIPELINE ##########################
+OUTPUT_PATH_FREEBAYES = PATH_OUTPUT + '/freebayes/'
+PATH_OPOSSUM = '{0}/Opossum/'.format(PROG_ROOT)
+PATH_FREEBAYES = '{0}/freebayes/bin/freebayes'.format(PROG_ROOT)
 ####################################################################
 
 ############ COMPUTE DISTANCE MATRIX [OPTIONAL] ##############################

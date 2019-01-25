@@ -12,24 +12,49 @@ from os.path import isfile
 from os.path import isdir
 from shutil import rmtree as rmdir
 
-from garmire_SNV_calling.process_snv_calling import ProcessSNVCalling
-from garmire_SNV_calling.config import NB_PROCESS_SNV as NB_PROCESS
-from garmire_SNV_calling.config import PATH_OUTPUT
-from garmire_SNV_calling.config import OUTPUT_PATH_SNV
-from garmire_SNV_calling.config import ARE_READS_BISULFITE
+from garmire_SNV_calling.process_snv_GATK import ProcessGATKSNV
+from garmire_SNV_calling.process_freebayes import ProcessFreebayesCaller
 
+from garmire_SNV_calling.config import NB_PROCESS_GATK as NB_PROCESS
+from garmire_SNV_calling.config import PATH_OUTPUT
+
+from garmire_SNV_calling.config import OUTPUT_PATH_GATK
+from garmire_SNV_calling.config import OUTPUT_PATH_FREEBAYES
+
+from sys import argv
+
+
+######## VARIABLE ##############################
+CLEANING_MODE = True
+
+
+if '--freebayes' in argv or '--do_both_callers' in argv:
+    SNVCLASS = ProcessFreebayesCaller
+    OUTPUT_PATH_SNV = OUTPUT_PATH_FREEBAYES
+    print('GATK SNV caller used. To use Freebayes, add --freebayes option')
+else:
+    SNVCLASS = ProcessGATKSNV
+    print('freebayes SNV caller used')
+    OUTPUT_PATH_SNV = OUTPUT_PATH_GATK
+
+if '--limit'  in argv:
+    LIMIT = int(argv[argv.index('--limit') + 1 ])
+else:
+    LIMIT = None
+################################################
 
 
 def main():
     res = raw_input(
-        "==> ready to launch SNV calling pipeline on {0} processes\n continue? (Y/n)"\
+        "==> ready to launch SNV on {0} processes\n continue? (Y/n)"\
               .format(NB_PROCESS))
     if res != 'Y':
-        print 'abord'
+        print('abord')
         return
 
     mp_analysis = Mp_Analysis()
     mp_analysis.run()
+
 
 class Mp_Analysis():
     def __init__(self):
@@ -39,21 +64,28 @@ class Mp_Analysis():
 
         output_star = listdir(PATH_OUTPUT + "star/")
 
+        if LIMIT:
+            output_star = output_star[:LIMIT]
+
         for fil in output_star:
             if not isfile(PATH_OUTPUT + "star/" + fil + \
                           "/Aligned.sortedByCoord.out.bam"):
-                print 'no star bam file for {0} skipping'.format(fil)
+                print('no star bam file for {0} skipping'.format(fil))
+
+                if isdir(PATH_OUTPUT + "star/" + fil) and CLEANING_MODE:
+                    rmdir(PATH_OUTPUT + "star/" + fil)
+                continue
 
             if isfile("{0}/data/{1}/snv_filtered.vcf"\
                       .format(OUTPUT_PATH_SNV, fil)):
-                print 'VCF file output already exists for {0} skipping...'\
-                    .format(fil)
+                print('VCF file output already exists for {0} skipping...'\
+                    .format(fil))
                 continue
 
-            print "file to be processed:", fil
+            print("file to be processed:", fil)
             self.mp_queue.put(fil)
 
-        print "\n #### now launching multiprocessing analysis #### \n"
+        print("\n #### now launching multiprocessing analysis #### \n")
 
         self.processes = [TrSNVMultiprocessing(self.mp_queue)
                           for _ in range(NB_PROCESS)]
@@ -83,7 +115,7 @@ class TrSNVMultiprocessing(Process):
     def __init__(self, input_queue):
         self.input_queue = input_queue
         self.id = randint(0, 1000000)
-        self.process_snv = ProcessSNVCalling(id=self.id)
+        self.process_snv = SNVCLASS(id=self.id)
         Process.__init__(self)
 
     def run(self):
@@ -91,16 +123,19 @@ class TrSNVMultiprocessing(Process):
             try:
                 patient = self.input_queue.get(True, 0.2)
             except Exception as e:
-                print "exception:{0}".format(e)
+                print("exception:{0}".format(e))
                 continue
             else:
-                print "processing for file {0} with id {1}"\
-                    .format(patient, self.id)
+                print("processing for file {0} with id {1}"\
+                    .format(patient, self.id))
 
-                if ARE_READS_BISULFITE:
-                    self.process_snv.process_bisulfite(patient)
+                if '--do_both_callers' in argv:
+                    error = self.process_snv.process_ALL_callers(patient)
                 else:
-                    self.process_snv.process(patient)
+                    error = self.process_snv.process(patient)
+
+                if error is not None:
+                    print('error {1} found for patient: {0}'.format(patient, error))
 
 
 if __name__ == "__main__":
