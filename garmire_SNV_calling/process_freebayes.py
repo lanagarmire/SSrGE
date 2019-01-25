@@ -205,7 +205,7 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
 
         start_time = time()
 
-        cmd = "{0}  -f {1} {2}/{3} > {2}/snv_filtered.vcf".format(
+        cmd = "{0}  -f {1} {2}/{3} > {2}/snv_filtered_freebayes.vcf".format(
             self.path_freebayes,
             self.ref_genome,
             self.tmppath,
