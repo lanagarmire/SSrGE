@@ -3,7 +3,6 @@ from config import PYTHON
 
 from sys import argv
 from os.path import isfile
-from os import popen
 
 from time import time
 
@@ -20,7 +19,9 @@ from garmire_SNV_calling.config import PATH_OPOSSUM
 from garmire_SNV_calling.config import PATH_FREEBAYES
 
 from distutils.dir_util import mkpath
+
 from shutil import copyfile
+from shutil import move
 
 from os.path import isdir
 
@@ -136,8 +137,8 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
             input_name='snv_raw_GATK.vcf',
             output_name='snv_filtered_GATK.vcf')
 
-        self._finish_process_gatk()
-        self._finish_process()
+        self._finish_process(ext="_GATK", out="_GATK")
+        self._finish_process(ext="", out="_freebayes")
         self._rm_tmp_file()
 
     def _init_process_gatk(self):
@@ -146,23 +147,6 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
         if not self.respath_gatk:
             self.respath_gatk = self.output_path_gatk + \
                                 "/data/" + self.srr_to_process
-
-    def _finish_process_gatk(self):
-        """
-        """
-        if not isdir(self.respath_gatk):
-            mkpath(self.respath_gatk)
-
-        self.stdout.write('''\n #### FINISHED #### \n
-        ALL PROCESS DONE FOR: {0} in {1} s
-        '''.format(self.srr_to_process, time() - self.time_start))
-
-        copyfile(self.tmppath + '/snv_filtered_GATK.vcf',
-                 self.respath_gatk + '/snv_filtered_GATK.vcf')
-
-        if isfile(self.tmppath + '/snv_filtered_GATK.vcf.idx'):
-            copyfile(self.tmppath + '/snv_filtered_GATK.vcf.idx',
-                     self.respath_gatk  + '/snv_filtered_GATK.vcf.idx')
 
     def _process_samtools_calmd(self, bam_input="Aligned.sortedByCoord.out.bam"):
         """

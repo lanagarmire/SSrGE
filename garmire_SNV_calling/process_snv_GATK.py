@@ -12,6 +12,7 @@ from subprocess import PIPE
 from distutils.dir_util import mkpath
 
 from shutil import copyfile
+from shutil import move
 
 from sys import stdout as STDOUT
 from sys import argv
@@ -181,7 +182,7 @@ class ProcessGATKSNV():
         self._launch_gatk_print_reads()
         self._launch_gatk_variant_calling()
         self._launch_gatk_variant_filtering()
-        self._finish_process()
+        self._finish_process(ext="", out="_GATK")
         self._rm_tmp_file()
 
     def process_exome(self, srr_to_process=None):
@@ -206,17 +207,18 @@ class ProcessGATKSNV():
         self._launch_gatk_print_reads(input_name='dedupped')
         self._launch_gatk_variant_calling()
         self._launch_gatk_variant_filtering()
-        self._finish_process()
+        self._finish_process(ext="", out="_GATK")
         self._rm_tmp_file()
 
     def _init_process(self):
         """mk tmp folders... """
         self.time_start = time()
-        self.tmppath = '{0}/{1}'.format(
+        self.tmppath = '{0}/{1}/'.format(
             self.output_path, self.srr_to_process)
 
         if not self.respath:
-            self.respath = self.output_path  + self.srr_to_process
+            self.respath = '{0}/{1}/'.format(
+                self.output_path, self.srr_to_process)
 
         sleep(2 * random())
         if not isdir(self.tmppath):
@@ -256,7 +258,7 @@ class ProcessGATKSNV():
         copyfile("{0}".format(self.bam_file_path),
                  "{0}/Aligned.sortedByCoord.out.bam".format(self.tmppath))
 
-    def _finish_process(self):
+    def _finish_process(self, ext="", out=""):
         """mk res folders... """
 
         if not isdir(self.respath):
@@ -270,17 +272,14 @@ class ProcessGATKSNV():
                       ' ALL PROCESS DONE FOR: {0} in {1} s"'\
                       .format(self.srr_to_process, time() - self.time_start))
 
-        if self.respath == self.tmppath:
-            return
+        move(self.tmppath + '/snv_filtered{0}.vcf'.format(ext),
+                 self.respath + '/snv_filtered{0}.vcf'.format(out))
 
-        copyfile(self.tmppath + '/snv_filtered.vcf',
-                 self.respath + '/snv_filtered_freebayes.vcf')
+        if isfile(self.tmppath + '/snv_filtered{0}.vcf.idx'.format(ext)):
+            move(self.tmppath + '/snv_filtered{0}.vcf.idx'.format(ext),
+                     self.respath  + '/snv_filtered{0}.vcf.idx'.format(out))
 
-        if isfile(self.tmppath + '/snv_filtered.vcf.idx'):
-            copyfile(self.tmppath + '/snv_filtered.vcf.idx',
-                     self.respath  + '/snv_filtered_freebayes.vcf.idx')
-
-        copyfile(self.tmppath + '/stdout.log',
+        move(self.tmppath + '/stdout.log',
                  self.respath + '/stdout.log')
 
     def _launch_picard_readgroups(self):
@@ -636,7 +635,7 @@ class ProcessGATKSNV():
     def check_if_output_exists(self, outfile):
         """
         """
-        if isfile(outfile) and not self.clean_tmp:
+        if isfile(outfile) and getsize(outfile) and not self.clean_tmp:
             return True
         else:
             popen('rm {0}'.format(outfile)).read()
