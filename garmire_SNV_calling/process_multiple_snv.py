@@ -15,7 +15,6 @@ from shutil import rmtree as rmdir
 from garmire_SNV_calling.process_snv_GATK import ProcessGATKSNV
 from garmire_SNV_calling.process_freebayes import ProcessFreebayesCaller
 
-from garmire_SNV_calling.config import NB_PROCESS_SNV as NB_PROCESS
 from garmire_SNV_calling.config import PATH_OUTPUT
 
 from garmire_SNV_calling.config import OUTPUT_PATH_GATK
@@ -41,6 +40,12 @@ if '--limit'  in argv:
     LIMIT = int(argv[argv.index('--limit') + 1 ])
 else:
     LIMIT = None
+
+if "--nb_process" in argv:
+    NB_PROCESS = eval(argv[
+        argv.index("--nb_process") + 1])
+else:
+    from garmire_SNV_calling.config import NB_PROCESS_SNV as NB_PROCESS
 ################################################
 
 
