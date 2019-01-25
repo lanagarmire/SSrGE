@@ -7,7 +7,7 @@ from os.path import isdir
 from os.path import isfile
 from os.path import getsize
 
-from SNV_pipeline.bash_utils import exec_cmd
+from garmire_SNV_calling.bash_utils import exec_cmd
 
 from time import sleep
 from random import random
