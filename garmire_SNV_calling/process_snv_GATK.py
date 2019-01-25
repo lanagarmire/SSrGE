@@ -46,7 +46,7 @@ if "--path_to_data" in argv:
     OUTPUT_PATH_GATK =  OUTPUT_PATH + '/snv_pipeline_GATK/'
 else:
     from garmire_SNV_calling.config import OUTPUT_PATH_GATK
-    from garmire_SNV_calling.config import OUTPUT_PATH
+    from garmire_SNV_calling.config import PATH_OUTPUT
 
 if "--plateform" in argv:
     PLATEFORM = argv[
@@ -104,7 +104,7 @@ class ProcessGATKSNV():
                  bam_file_name='',
                  srr_to_process=SRR_TO_PROCESS,
                  output_path=OUTPUT_PATH_GATK,
-                 path_to_data=OUTPUT_PATH,
+                 path_to_data=PATH_OUTPUT,
                  java=JAVA,
                  java_mem=JAVA_MEM,
                  picard_dir=PICARD_DIR,

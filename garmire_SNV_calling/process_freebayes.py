@@ -24,7 +24,7 @@ from shutil import copyfile
 
 from os.path import isdir
 
-from garmire_SNV_calling.process_snv_GATK import OUTPUT_PATH as OUTPUT_PATH_GATK
+from garmire_SNV_calling.config import OUTPUT_PATH_GATK
 
 
 if "--do_both_callers" in argv:
@@ -35,9 +35,9 @@ else:
 if "--path_to_data" in argv:
     PATH_TO_DATA = argv[
         argv.index("--path_to_data") + 1]
-    OUTPUT_PATH =  PATH_TO_DATA + '/freebayes/'
+    PATH_OUTPUT =  PATH_TO_DATA + '/freebayes/'
 else:
-    from garmire_SNV_calling.config import OUTPUT_PATH
+    from garmire_SNV_calling.config import PATH_OUTPUT
     from garmire_SNV_calling.config import OUTPUT_PATH_FREEBAYES
 
 
@@ -54,7 +54,7 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
     """ """
     def __init__(self,
                  output_path=OUTPUT_PATH_FREEBAYES,
-                 path_to_data=OUTPUT_PATH,
+                 path_to_data=PATH_OUTPUT,
                  picard_dir=PICARD_DIR,
                  plateform=PLATEFORM,
                  organism=ORGANISM,
