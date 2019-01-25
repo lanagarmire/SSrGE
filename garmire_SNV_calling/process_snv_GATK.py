@@ -560,7 +560,7 @@ class ProcessGATKSNV():
 
         self._run_cmd_fix_quality(cmd, to_rm='recal.bam', resolve='hard')
 
-    def _launch_gatk_variant_calling(self, output_name='snv_raw.vcf'):
+    def _launch_gatk_variant_calling(self, output_name='snv_raw_GATK.vcf'):
         """
         variant calling
         """
@@ -600,8 +600,8 @@ class ProcessGATKSNV():
 
     def _launch_gatk_variant_filtering(
             self,
-            input_name='snv_raw.vcf',
-            output_name='snv_filtered.vcf'):
+            input_name='snv_raw_GATK.vcf',
+            output_name='snv_filtered_GATK.vcf'):
         """
         variant filtering
         """
