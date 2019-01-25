@@ -41,12 +41,11 @@ if "--process_id" in argv:
         argv.index("--process_id") + 1])
 
 if "--path_to_data" in argv:
-    PATH_TO_DATA = argv[
+    OUTPUT_PATH = argv[
         argv.index("--path_to_data") + 1]
-    OUTPUT_PATH =  PATH_TO_DATA + '/snv_pipeline_raw/'
+    OUTPUT_PATH_GATK =  OUTPUT_PATH + '/snv_pipeline_GATK/'
 else:
-    from garmire_SNV_calling.config import PATH_TO_DATA
-    from garmire_SNV_calling.config import OUTPUT_PATH_GATK as OUTPUT_PATH
+    from garmire_SNV_calling.config import OUTPUT_PATH_GATK
 
 if "--plateform" in argv:
     PLATEFORM = argv[
@@ -103,8 +102,8 @@ class ProcessGATKSNV():
     def __init__(self,
                  bam_file_name='',
                  srr_to_process=SRR_TO_PROCESS,
-                 output_path=OUTPUT_PATH,
-                 path_to_data=PATH_TO_DATA,
+                 output_path=OUTPUT_PATH_GATK,
+                 path_to_data=OUTPUT_PATH,
                  java=JAVA,
                  java_mem=JAVA_MEM,
                  picard_dir=PICARD_DIR,

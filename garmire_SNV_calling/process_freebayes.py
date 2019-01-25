@@ -37,8 +37,8 @@ if "--path_to_data" in argv:
         argv.index("--path_to_data") + 1]
     OUTPUT_PATH =  PATH_TO_DATA + '/freebayes/'
 else:
-    from garmire_SNV_calling.config import PATH_TO_DATA
-    from garmire_SNV_calling.config import OUTPUT_PATH_FREEBAYES as OUTPUT_PATH
+    from garmire_SNV_calling.config import OUTPUT_PATH
+    from garmire_SNV_calling.config import OUTPUT_PATH_FREEBAYES
 
 
 def main():
@@ -53,8 +53,8 @@ def main():
 class ProcessFreebayesCaller(ProcessGATKSNV):
     """ """
     def __init__(self,
-                 output_path=OUTPUT_PATH,
-                 path_to_data=PATH_TO_DATA,
+                 output_path=OUTPUT_PATH_FREEBAYES,
+                 path_to_data=OUTPUT_PATH,
                  picard_dir=PICARD_DIR,
                  plateform=PLATEFORM,
                  organism=ORGANISM,
