@@ -272,8 +272,9 @@ class ProcessGATKSNV():
                       ' ALL PROCESS DONE FOR: {0} in {1} s"'\
                       .format(self.srr_to_process, time() - self.time_start))
 
-        move(self.tmppath + '/snv_filtered{0}.vcf'.format(ext),
-                 self.respath + '/snv_filtered{0}.vcf'.format(out))
+        if isfile(self.tmppath + '/snv_filtered{0}.vcf'.format(ext)):
+            move(self.tmppath + '/snv_filtered{0}.vcf'.format(ext),
+                self.respath + '/snv_filtered{0}.vcf'.format(out))
 
         if isfile(self.tmppath + '/snv_filtered{0}.vcf.idx'.format(ext)):
             move(self.tmppath + '/snv_filtered{0}.vcf.idx'.format(ext),
@@ -658,11 +659,11 @@ class ProcessGATKSNV():
         if self.tmppath != self.respath:
             cmd = "rm -rf {0}".format(self.tmppath)
 
-        try:
-            self._run_cmd(cmd)
-        except Exception as e:
-            print('#### error while trying to remove the tmp folder: {0}'\
-                  .format(e))
+            try:
+                self._run_cmd(cmd)
+            except Exception as e:
+                print('#### error while trying to remove the tmp folder: {0}'\
+                      .format(e))
 
     def _run_cmd(self, cmd):
         """run cmd"""
