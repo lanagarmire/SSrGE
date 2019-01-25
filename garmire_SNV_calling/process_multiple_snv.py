@@ -87,8 +87,8 @@ class Mp_Analysis():
 
         print("\n #### now launching multiprocessing analysis #### \n")
 
-        self.processes = [TrSNVMultiprocessing(self.mp_queue)
-                          for _ in range(NB_PROCESS)]
+        self.processes = [TrSNVMultiprocessing(self.mp_queue, id=i)
+                          for i in range(NB_PROCESS)]
     def _run(self):
         for p in self.processes:
             p.start()
@@ -112,9 +112,9 @@ class TrSNVMultiprocessing(Process):
     """
     Launch and control several instance of SNV process
     """
-    def __init__(self, input_queue):
+    def __init__(self, input_queue, id):
         self.input_queue = input_queue
-        self.id = randint(0, 1000000)
+        self.id = id
         self.process_snv = SNVCLASS(id=self.id)
         Process.__init__(self)
 

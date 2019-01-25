@@ -31,14 +31,17 @@ from garmire_SNV_calling.config import GATK_JAR
 
 ############ VARIABLES ############################################
 SRR_TO_PROCESS = "" # for debug purpose
-PROCESS_ID = randint(0, 1000000)
 
 if "--specific_folder" in argv:
     SRR_TO_PROCESS = argv[
         argv.index("--specific_folder") + 1]
+
 if "--process_id" in argv:
     PROCESS_ID = int(argv[
         argv.index("--process_id") + 1])
+
+else:
+    PROCESS_ID = 0
 
 if "--path_to_data" in argv:
     OUTPUT_PATH = argv[
@@ -209,7 +212,8 @@ class ProcessGATKSNV():
     def _init_process(self):
         """mk tmp folders... """
         self.time_start = time()
-        self.tmppath = self.output_path + "/tmp/" + self.id
+        self.tmppath = '{0}/tmp/{2}_{1}'.format(
+            self.output_path, self.id, self.srr_to_process)
 
         if not self.respath:
             self.respath = self.output_path + \
