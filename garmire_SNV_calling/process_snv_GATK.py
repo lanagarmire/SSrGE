@@ -46,6 +46,7 @@ if "--path_to_data" in argv:
     OUTPUT_PATH_GATK =  OUTPUT_PATH + '/snv_pipeline_GATK/'
 else:
     from garmire_SNV_calling.config import OUTPUT_PATH_GATK
+    from garmire_SNV_calling.config import OUTPUT_PATH
 
 if "--plateform" in argv:
     PLATEFORM = argv[
