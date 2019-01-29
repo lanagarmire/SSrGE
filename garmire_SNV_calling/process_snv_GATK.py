@@ -205,10 +205,8 @@ class ProcessGATKSNV():
         self._launch_picard_markduplicates()
         self._launch_gatk_base_recalibrator(input_name='dedupped')
         self._launch_gatk_print_reads(input_name='dedupped')
-        self._launch_gatk_variant_calling(output_name='snv_raw_GATK.vcf')
-        self._launch_gatk_variant_filtering(
-            input_name='snv_raw_GATK.vcf',
-            output_name='snv_filtered_GATK.vcf')
+        self._launch_gatk_variant_calling()
+        self._launch_gatk_variant_filtering()
 
         self._finish_process(ext="_GATK", out="_GATK")
         self._rm_tmp_file()

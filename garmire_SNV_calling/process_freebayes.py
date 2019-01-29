@@ -113,6 +113,7 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
     def process_ALL_callers(self, srr_to_process=None):
         """
         """
+        print("LAUNCH ALL CALLER")
         if srr_to_process:
             self.srr_to_process = srr_to_process
 
@@ -132,10 +133,8 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
         self._launch_gatk_base_recalibrator()
         self._launch_gatk_print_reads()
         self._process_freebayes('recal.bam')
-        self._launch_gatk_variant_calling(output_name='snv_raw_GATK.vcf')
-        self._launch_gatk_variant_filtering(
-            input_name='snv_raw_GATK.vcf',
-            output_name='snv_filtered_GATK.vcf')
+        self._launch_gatk_variant_calling()
+        self._launch_gatk_variant_filtering()
 
         self._finish_process(ext="_GATK", out="_GATK")
         self._finish_process(ext="_freebayes", out="_freebayes")
@@ -196,6 +195,7 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
     def _process_freebayes(self, bam_input="clean.bam"):
         """
         """
+        print("LAUNCH FREEBAYES")
         if self.check_if_output_exists(
             "{0}/snv_filtered_freebayes.vcf".format(self.tmppath)):
             return
