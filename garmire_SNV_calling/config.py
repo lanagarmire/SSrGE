@@ -19,7 +19,7 @@ ARGPARSER.add_argument('-cell_type',
                        default="HUMAN",
                        metavar='str')
 
-ARGPARSER.add_argument('-star_index_read_length',
+ARGPARSER.add_argument('-read_length',
                        help=' star index read length (default: 51)',
                        default=51,
                        type=int,
@@ -36,7 +36,7 @@ CELL_TYPE = ARGS.cell_type
 # IONTORRE NT, CAPILLARY, HELICOS, UNKNOWN
 PLATEFORM = 'ILLUMINA'
 # Read length used to create star index for reference genome
-STAR_INDEX_READ_LENGTH = ARGS.star_index_read_length
+STAR_INDEX_READ_LENGTH = ARGS.read_length
 
 ############ FOLDER ARCHITECTURE  ####################################
 #Alias to define the GLOBAL_DATA_ROOT, OUTPUT_ROOT and PROG_ROOT
