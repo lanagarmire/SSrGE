@@ -48,7 +48,7 @@ def download_and_process_soft(gse, erase=False):
     exec_cmd('wget {0} -O {1}/{2}.soft.gz'.format(address, PATH_DATA, PROJECT_NAME))
     exec_cmd('gzip -d {0}/{1}.soft.gz'.format(PATH_DATA, PROJECT_NAME))
 
-    read_soft('{0}/{1}.soft'.format(PATH_DATA, gse))
+    read_soft('{0}/{1}.soft'.format(PATH_DATA, PROJECT_NAME))
 
 def read_soft(soft_file):
     """
