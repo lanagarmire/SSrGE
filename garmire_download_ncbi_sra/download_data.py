@@ -9,11 +9,11 @@ from os.path import isfile
 from os import popen
 
 import urllib2
-import re
 
 from distutils.dir_util import mkpath
 
-from garmire_download_ncbi_sra.config import PATH_SOFT
+import json
+
 from garmire_download_ncbi_sra.config import PATH_DATA
 from garmire_download_ncbi_sra.config import NB_THREADS
 from garmire_download_ncbi_sra.config import LIMIT
@@ -102,15 +102,17 @@ def get_urls():
                             sra/sra-instant/reads/ByExp/sra/SRX/SRX364/SRX364871/
     Sample		Accession: GSM1243834	ID: 301243834
     """
-    regex_url = re.compile("(?<=!Sample_supplementary_file_1 = )ftp://.+(?=\n)")
-    regex_gsm = re.compile("(?<=\^SAMPLE = )GSM[0-9]+")
+    f_meta = open('{0}/metadata.json'.format(PATH_DATA))
+    metadata = json.load(f_meta)
 
-    read = open(PATH_SOFT, 'r').read()
+    gsms, urls = [], []
 
-    addresses = regex_url.findall(read)
-    gsms = regex_gsm.findall(read)
+    for sample in metadata:
+        if 'SRA' in metadata[sample]:
+            gsms.append(sample)
+            urls.append(metadata[sample]['SRA'])
 
-    return zip(gsms, addresses)
+    return zip(gsms, urls)
 
 if __name__ == "__main__":
     main()
