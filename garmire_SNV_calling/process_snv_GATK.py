@@ -32,55 +32,17 @@ from garmire_SNV_calling.config import GATK_JAR
 
 ############ VARIABLES ############################################
 SRR_TO_PROCESS = "" # for debug purpose
+PROCESS_ID = 0
 
-if "--specific_folder" in argv:
-    SRR_TO_PROCESS = argv[
-        argv.index("--specific_folder") + 1]
 
-if "--process_id" in argv:
-    PROCESS_ID = int(argv[
-        argv.index("--process_id") + 1])
+from garmire_SNV_calling.config import OUTPUT_PATH_GATK
+from garmire_SNV_calling.config import PATH_OUTPUT
+from garmire_SNV_calling.config import PLATEFORM
+from garmire_SNV_calling.config import ORGANISM
 
-else:
-    PROCESS_ID = 0
-
-if "--path_to_data" in argv:
-    OUTPUT_PATH = argv[
-        argv.index("--path_to_data") + 1]
-    OUTPUT_PATH_GATK =  OUTPUT_PATH + '/snv_pipeline_GATK/'
-else:
-    from garmire_SNV_calling.config import OUTPUT_PATH_GATK
-    from garmire_SNV_calling.config import PATH_OUTPUT
-
-if "--plateform" in argv:
-    PLATEFORM = argv[
-        argv.index("--plateform") + 1]
-else:
-    from garmire_SNV_calling.config import PLATEFORM
-
-if "--organism" in argv:
-    ORGANISM = argv[
-        argv.index("--organism") + 1]
-else:
-    from garmire_SNV_calling.config import ORGANISM
-
-if "--ref_genome" in argv:
-    REF_GENOME = argv[
-        argv.index("--ref_genome") + 1]
-else:
-    from garmire_SNV_calling.config import REF_GENOME
-
-if "--dbsnp" in argv:
-    DBSNP = argv[
-        argv.index("--dbsnp") + 1]
-else:
-    from garmire_SNV_calling.config import DBSNP
-
-if "--vcf_resources" in argv:
-    VCF_RESOURCES = eval(argv[
-        argv.index("--vcf_resources") + 1])
-else:
-    from garmire_SNV_calling.config import VCF_RESOURCES
+from garmire_SNV_calling.config import REF_GENOME
+from garmire_SNV_calling.config import DBSNP
+from garmire_SNV_calling.config import VCF_RESOURCES
 
 
 if "--ignore_already_exists" in argv:
@@ -92,7 +54,6 @@ if "--clean_tmp" in argv:
     CLEAN_TMP = True
 else:
     CLEAN_TMP = False
-
 
 ###################################################################
 

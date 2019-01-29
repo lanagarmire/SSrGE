@@ -2,7 +2,7 @@
 
 from sys import stdout as sys_stdout
 from os import popen
-from os import mkdir
+
 from os.path import isdir
 from distutils.dir_util import mkpath
 

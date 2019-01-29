@@ -26,42 +26,16 @@ from garmire_SNV_calling.bash_utils import printf
 
 
 ############ VARIABLES ############################################
-if "--specific_folder" in argv:
-    PATTERN = argv[
-        argv.index("--specific_folder") + 1]
-else:
-    from garmire_SNV_calling.config import SPECIFIC_FILENAME_PATTERN as PATTERN
 
-if "--fastq_path" in argv:
-    FASTQ_PATH = argv[
-        argv.index("--fastq_path") + 1]
-else:
-    from garmire_SNV_calling.config import FASTQ_PATH
+from garmire_SNV_calling.config import SPECIFIC_FILENAME_PATTERN as PATTERN
+from garmire_SNV_calling.config import FASTQ_PATH
+from garmire_SNV_calling.config import STAR_INDEX_PATH
+from garmire_SNV_calling.config import STAR_INDEX_READ_LENGTH
 
-if "--star_index_path" in argv:
-    STAR_INDEX_PATH = argv[
-        argv.index("--star_index_path") + 1]
-else:
-    from garmire_SNV_calling.config import STAR_INDEX_PATH
+from garmire_SNV_calling.config import OUTPUT_PATH_STAR \
+    as OUTPUT_PATH
 
-if "--star_index_read_length" in argv:
-    STAR_INDEX_READ_LENGTH = argv[
-        argv.index("--star_index_read_length") + 1]
-else:
-    from garmire_SNV_calling.config import STAR_INDEX_READ_LENGTH
-
-if "--output_path_star" in argv:
-    OUTPUT_PATH = argv[
-        argv.index("--output_path_star") + 1]
-else:
-    from garmire_SNV_calling.config import OUTPUT_PATH_STAR \
-        as OUTPUT_PATH
-
-if "--simulated_ref_genome" in argv:
-    SIMULATED_REF_GENOME = argv[
-        argv.index("--simulated_ref_genome") + 1]
-else:
-    from garmire_SNV_calling.config import SIMULATED_REF_GENOME
+from garmire_SNV_calling.config import SIMULATED_REF_GENOME
 
 ###################################################################
 

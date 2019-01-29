@@ -4,18 +4,39 @@ config file for SNV calling pipeline
 """
 
 from os.path import split as pathsplit
+from argparse import ArgumentParser
 
+ARGPARSER = ArgumentParser(description='Argument for the SNV pipeline',
+                                   prefix_chars='-')
+
+ARGPARSER.add_argument('-project_name',
+                       help='name of the project folder and where to find the fastq files (default: 10x_sample_test)',
+                       default="10x_sample_test",
+                       metavar='str')
+
+ARGPARSER.add_argument('-cell_type',
+                       help=' (HUMAN/MOUSE) default: HUMAN',
+                       default="HUMAN",
+                       metavar='str')
+
+ARGPARSER.add_argument('-star_index_read_length',
+                       help=' star index read length (default: 51)',
+                       default=51,
+                       type=int,
+                       metavar='int')
+
+ARGS = ARGPARSER.parse_known_args()[0]
 
 # Project name. Used to create folder
-PROJECT_NAME = '10x_sample_test'
+PROJECT_NAME = ARGS.project_name
 # type of the dataset (human or mouse). Used to select reference genomes
-CELL_TYPE = 'HUMAN'
+CELL_TYPE = ARGS.cell_type
 # valid sequencing machine for picard tools:
 # ILLUMINA, SLX, SOLEXA, SOLID, 454, LS454, COMPLETE, PACBIO,
 # IONTORRE NT, CAPILLARY, HELICOS, UNKNOWN
 PLATEFORM = 'ILLUMINA'
 # Read length used to create star index for reference genome
-STAR_INDEX_READ_LENGTH = 51
+STAR_INDEX_READ_LENGTH = ARGS.star_index_read_length
 
 ############ FOLDER ARCHITECTURE  ####################################
 #Alias to define the GLOBAL_DATA_ROOT, OUTPUT_ROOT and PROG_ROOT
