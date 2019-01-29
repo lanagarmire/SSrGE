@@ -61,7 +61,7 @@ def read_soft(soft_file):
 
     n_samples = len(gse_dict)
 
-    organism = Counter([gse_dict[gse]['organism_code'][0] for gse in gse_dict])
+    organism = Counter([gse_dict[gse]['organism_code'] for gse in gse_dict])
 
     organism = sorted(organism.items(), key=lambda x:x[1], reverse=True)[0][0]
     organism = organism.split()[0]
