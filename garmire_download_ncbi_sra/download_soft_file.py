@@ -19,7 +19,7 @@ from collections import defaultdict
 from os.path import isdir
 
 from datetime import datetime
-
+import json
 
 
 def main():
@@ -45,13 +45,12 @@ def download_and_process_soft(gse, erase=False):
         gse
     )
 
-    exec_cmd('wget {0} -O {1}/{2}.soft.gz'.format(address, PATH_DATA, gse))
-    exec_cmd('gzip -d {1}/{0}.soft.gz'.format(gse, PATH_DATA))
+    exec_cmd('wget {0} -O {1}/{2}.soft.gz'.format(address, PATH_DATA, PROJECT_NAME))
+    exec_cmd('gzip -d {0}/{1}.soft.gz'.format(PATH_DATA, PROJECT_NAME))
 
-    rename_soft('{0}/{1}.soft'.format(PATH_DATA, gse),
-                '{0}/{1}.soft'.format(PATH_DATA, PROJECT_NAME))
+    read_soft('{0}/{1}.soft'.format(PATH_DATA, gse))
 
-def rename_soft(soft_file, path_soft):
+def read_soft(soft_file):
     """
     """
     gse_dict = extract_gsm_from_soft(soft_file)
@@ -67,11 +66,18 @@ def rename_soft(soft_file, path_soft):
     organism = sorted(organism.items(), key=lambda x:x[1], reverse=True)[0][0]
     organism = organism.split()[0]
 
-    exec_cmd('mv {0}/{1}.soft {0}/{1}_n{2}_{3}.soft'.format(
-        path_soft, soft_file.rsplit('.', 1)[0], n_samples, organism))
+    f_stat = open('{0}/statistics.json'.format(PATH_DATA), 'w')
+    f_meta = open('{0}/metadata.json'.format(PATH_DATA), 'w')
 
-    print('{0}/{1}_n{2}_{3}.soft created!'.format(
-        path_soft, soft_file.rsplit('.', 1)[0], n_samples, organism))
+    f_meta.write(json.dumps(gse_dict))
+
+    f_stat.write(json.dumps({
+        'organism':organism,
+        "nb_samples": n_samples
+    }))
+
+    print("organism: {0}".format(organism))
+    print("number of samples: {0}".format(n_samples))
 
 
 def extract_gsm_from_soft(
