@@ -8,6 +8,8 @@ from os.path import isdir
 from os.path import isfile
 from os import popen
 
+from os import mkdir
+
 import urllib2
 
 from distutils.dir_util import mkpath
@@ -18,6 +20,12 @@ from garmire_download_ncbi_sra.config import PATH_DATA
 from garmire_download_ncbi_sra.config import NB_THREADS
 from garmire_download_ncbi_sra.config import LIMIT
 
+from garmire_SNV_calling.bash_utils import exec_cmd
+
+from urllib2 import URLError
+
+import re
+
 from multiprocessing.pool import ThreadPool
 
 from time import sleep
@@ -25,13 +33,16 @@ from time import sleep
 
 ############ VARIABLES ############
 PATH_SEQ = PATH_DATA + '/fastq/'
+
+if not isdir(PATH_SEQ):
+    mkdir(PATH_SEQ)
 ###################################
 
 
 def main():
     download_data()
 
-def _download(url):
+def _download_old(url):
     """ """
     gsm, address = url
 
@@ -67,6 +78,56 @@ def _download(url):
 
     sleep(0.2)
 
+def _download(data, verbose=True):
+    """ """
+    gsm, url_address = data
+
+    waiting_list = [10, 20, 30]
+
+    f_name = "{0}/{1}.sra".format(PATH_SEQ, gsm)
+
+    if isfile('{0}/download_successfull.log'.format(PATH_SEQ)):
+        msg = 'file {0} already downloaded. skipping...'.format(f_name)
+        print(msg)
+        return msg
+    while True:
+        try:
+            url = urllib2.urlopen(url_address).read()
+        except URLError as e:
+            if waiting_list:
+                sleep_time = waiting_list.pop()
+                print('error when downloading: {1} sleeping {0} s...'.format(sleep_time, e))
+                sleep(sleep_time)
+            else:
+                raise e
+        else:
+            break
+
+    srr = re.findall('run=(?P<srr>SRR[0-9]+)', url)[0]
+
+    srr_url = "ftp://ftp-trace.ncbi.nlm.nih.gov"\
+              "/sra/sra-instant/reads/ByRun/sra/SRR/{0}/{1}/{1}.sra".format(
+                  srr[0:6], srr)
+
+    print('downloading: {0}'.format(srr_url))
+
+    if verbose:
+        verb = ''
+    else:
+        verb = '--no-verbose'
+    cmd = "wget {2} -O {0} {1} ".format(f_name, srr_url, verb)
+    print('launching: {0}'.format(cmd))
+
+    exec_cmd(cmd)
+
+    msg = '{0} successfully downloaded'.format(f_name)
+    print(msg)
+
+    f_log = open('{0}/download_successfull.log'.format(PATH_SEQ), 'w')
+    f_log.write('download complete')
+
+    return msg
+
 def download_data():
     """download dataset from ncbi """
 
@@ -78,7 +139,7 @@ def download_data():
     if not isdir(PATH_SEQ):
         mkpath(PATH_SEQ)
 
-    f_error = open(PATH_DATA + "error_log.txt", "w")
+    f_error = open(PATH_DATA + "/error_log.txt", "w")
 
     thread_pool = ThreadPool(processes=NB_THREADS)
 
