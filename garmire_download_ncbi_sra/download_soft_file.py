@@ -73,7 +73,8 @@ def read_soft(soft_file):
 
     f_stat.write(json.dumps({
         'organism':organism,
-        "nb_samples": n_samples
+        "nb_samples": n_samples,
+        "soft ID": SOFT_ID
     }, indent=2))
 
     print("organism: {0}".format(organism))
