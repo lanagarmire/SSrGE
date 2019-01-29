@@ -13,7 +13,7 @@ def main():
 
 def rm_sra():
     """extract sra file"""
-    path_seq = PATH_DATA + 'fastq/'
+    path_seq = PATH_DATA + '/fastq/'
     popen('rm {0}*.sra'.format(path_seq)).read()
 
 
