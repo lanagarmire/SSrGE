@@ -48,7 +48,8 @@ def download_and_process_soft(gse, erase=False):
     exec_cmd('wget {0} -O {1}/{2}.soft.gz'.format(address, PATH_DATA, gse))
     exec_cmd('gzip -d {1}/{0}.soft.gz'.format(gse, PATH_DATA))
 
-    rename_soft('{0}.soft'.format(gse), '{0}/{1}.soft'.format(PATH_DATA, PROJECT_NAME))
+    rename_soft('{0}/{1}.soft'.format(PATH_DATA, gse),
+                '{0}/{1}.soft'.format(PATH_DATA, PROJECT_NAME))
 
 def rename_soft(soft_file, path_soft):
     """
