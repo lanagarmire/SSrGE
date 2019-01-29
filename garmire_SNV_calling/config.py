@@ -95,7 +95,7 @@ BSSEQ_INDEX_PATH = TYPE_VAR[CELL_TYPE]['BSSEQ_INDEX_PATH']
 ############# DATASET ################################################
 # Absolute path for fastq files.
 # Fastq files must be organised using one folder for one SRX experiment
-FASTQ_PATH = "{0}/{1}/fastq/".format(GLOBAL_DATA_ROOT, PROJECT_NAME)
+FASTQ_PATH = "{0}/{1}/fastq/".format(OUTPUT_ROOT, PROJECT_NAME)
 # output path
 PATH_OUTPUT = "{0}/{1}/".format(OUTPUT_ROOT, PROJECT_NAME)
 #specific string pattern that a folder name must match
