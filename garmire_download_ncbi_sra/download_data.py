@@ -24,7 +24,7 @@ from time import sleep
 
 
 ############ VARIABLES ############
-PATH_SEQ = PATH_DATA + 'fastq/'
+PATH_SEQ = PATH_DATA + '/fastq/'
 ###################################
 
 

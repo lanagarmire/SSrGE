@@ -21,7 +21,7 @@ from multiprocessing import Pool
 
 
 ############ VARIABLE ############
-PATH_SEQ = PATH_DATA + 'fastq/'
+PATH_SEQ = PATH_DATA + '/fastq/'
 ##################################
 
 

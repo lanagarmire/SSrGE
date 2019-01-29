@@ -10,8 +10,8 @@ ARGPARSER = ArgumentParser(description='Argument for the SNV pipeline',
                                    prefix_chars='-')
 
 ARGPARSER.add_argument('-project_name',
-                       help='name of the project folder and where to find the fastq files (default: 10x_sample_test)',
-                       default="10x_sample_test",
+                       help='name of the project folder and where to find the fastq files (default: sample_test)',
+                       default="sample_test",
                        metavar='str')
 
 ARGPARSER.add_argument('-cell_type',
@@ -22,6 +22,18 @@ ARGPARSER.add_argument('-cell_type',
 ARGPARSER.add_argument('-read_length',
                        help=' star index read length (default: 51)',
                        default=51,
+                       type=int,
+                       metavar='int')
+
+ARGPARSER.add_argument('-star_nb_threads',
+                       help=' number of threads for STAR analysis (default 12)',
+                       default=12,
+                       type=int,
+                       metavar='int')
+
+ARGPARSER.add_argument('-snv_nb_threads',
+                       help=' number of SNV calling pipelines executed in parallel (default 3)',
+                       default=3,
                        type=int,
                        metavar='int')
 
@@ -180,7 +192,7 @@ SAMTOOLS = '{0}/samtools-1.5/bin/samtools'.format(PROG_ROOT)
 
 #############  STAR #################################################
 # Number of threads used when using STAR aligner
-STAR_THREADS = 12
+STAR_THREADS = ARGS.star_nb_threads
 # output path for STAR results
 OUTPUT_PATH_STAR = PATH_OUTPUT + "/star/"
 #####################################################################
@@ -189,7 +201,7 @@ OUTPUT_PATH_STAR = PATH_OUTPUT + "/star/"
 # output path for SNVs inferred
 OUTPUT_PATH_GATK =  PATH_OUTPUT + '/snv_pipeline_GATK/'
 # Number of SNV calling processes launched in parallel
-NB_PROCESS_SNV = 3
+NB_PROCESS_SNV = ARGS.snv_nb_threads
 ####################################################################
 
 ########### FREEBAYES SNV CALLING PIPELINE ##########################

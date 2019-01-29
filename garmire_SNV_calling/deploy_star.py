@@ -11,7 +11,6 @@ from garmire_SNV_calling.bash_utils import exec_cmd
 
 from time import sleep
 from random import random
-from sys import argv
 
 from os import popen
 
