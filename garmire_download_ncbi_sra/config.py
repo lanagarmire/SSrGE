@@ -61,4 +61,6 @@ FASTQ_DUMP = "fastq-dump"
 FASTQ_DUMP_OPTION = "--split-3 -B"
 # define the maximum number of sra files to be downloaded
 LIMIT = ARGS.max
+#soft ID
+SOFT_ID = ARGS.soft_id
 ########################################################################
