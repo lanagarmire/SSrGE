@@ -69,12 +69,12 @@ def read_soft(soft_file):
     f_stat = open('{0}/statistics.json'.format(PATH_DATA), 'w')
     f_meta = open('{0}/metadata.json'.format(PATH_DATA), 'w')
 
-    f_meta.write(json.dumps(gse_dict))
+    f_meta.write(json.dumps(gse_dict, indent=2))
 
     f_stat.write(json.dumps({
         'organism':organism,
         "nb_samples": n_samples
-    }))
+    }, indent=2))
 
     print("organism: {0}".format(organism))
     print("number of samples: {0}".format(n_samples))
