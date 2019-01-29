@@ -61,7 +61,7 @@ def read_soft(soft_file):
 
     n_samples = len(gse_dict)
 
-    organism = Counter([gse_dict[gse]['organism_ch1'][0] for gse in gse_dict])
+    organism = Counter([gse_dict[gse]['organism_code'][0] for gse in gse_dict])
 
     organism = sorted(organism.items(), key=lambda x:x[1], reverse=True)[0][0]
     organism = organism.split()[0]
@@ -121,9 +121,9 @@ def extract_gsm_from_soft(
                 if geo_organism:
                     geo_organism = geo_organism[0]
 
-                    if geo_organism == 'Homo sapiens':
+                    if geo_organism == 'Homo sapiens' or geo_organism == 'Homo':
                         data['organism_code'] = 'HUMAN'
-                    elif geo_organism == 'Mus musculus':
+                    elif geo_organism == 'Mus musculus' or geo_organism == 'Mus':
                         data['organism_code'] = 'MOUSE'
 
                 if sra:
