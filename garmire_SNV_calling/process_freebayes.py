@@ -18,13 +18,6 @@ from garmire_SNV_calling.process_snv_GATK import PROCESS_ID
 from garmire_SNV_calling.config import PATH_OPOSSUM
 from garmire_SNV_calling.config import PATH_FREEBAYES
 
-from distutils.dir_util import mkpath
-
-from shutil import copyfile
-from shutil import move
-
-from os.path import isdir
-
 from garmire_SNV_calling.config import OUTPUT_PATH_GATK
 
 
@@ -113,7 +106,6 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
     def process_ALL_callers(self, srr_to_process=None):
         """
         """
-        print("LAUNCH ALL CALLER")
         if srr_to_process:
             self.srr_to_process = srr_to_process
 
@@ -195,7 +187,6 @@ class ProcessFreebayesCaller(ProcessGATKSNV):
     def _process_freebayes(self, bam_input="clean.bam"):
         """
         """
-        print("LAUNCH FREEBAYES")
         if self.check_if_output_exists(
             "{0}/snv_filtered_freebayes.vcf".format(self.tmppath)):
             return

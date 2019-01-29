@@ -172,7 +172,7 @@ NB_PROCESS_SNV = 3
 ####################################################################
 
 ########### FREEBAYES SNV CALLING PIPELINE ##########################
-OUTPUT_PATH_FREEBAYES = PATH_OUTPUT + '/freebayes/'
+OUTPUT_PATH_FREEBAYES = PATH_OUTPUT + '/snv_pipeline_freebayes/'
 PATH_OPOSSUM = '{0}/Opossum/'.format(PROG_ROOT)
 PATH_FREEBAYES = '{0}/freebayes/bin/freebayes'.format(PROG_ROOT)
 ####################################################################
