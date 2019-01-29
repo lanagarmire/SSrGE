@@ -26,7 +26,7 @@ ARGPARSER.add_argument('-nb_cpus',
                        type=int,
                        metavar='int')
 
-ARGPARSER.add_argument('-max',
+ARGPARSER.add_argument('-max_nb_samples',
                        help=' max number of samples downloaded (default None)',
                        default=0,
                        type=int,
@@ -51,7 +51,7 @@ PATH_DATA = "/data/results/{0}".format(PROJECT_NAME)
 # path toward the .soft file (with the corresponding ftp addresses for the .sra files)
 PATH_SOFT =  "{0}/{1}.soft".format(PATH_DATA, PROJECT_NAME)
 # number of threads to use for downloading rsa files
-NB_THREADS = ARGS.project_name
+NB_THREADS = ARGS.dl_nb_threads
 # number of CPU to be used to extract the .sra files
 NB_CPU = ARGS.nb_cpus
 # path to the fastq software
@@ -60,7 +60,7 @@ FASTQ_DUMP = "fastq-dump"
 # "--split-3 -B is the default" and it is strongly recommended to keep it
 FASTQ_DUMP_OPTION = "--split-3 -B"
 # define the maximum number of sra files to be downloaded
-LIMIT = ARGS.max
+LIMIT = ARGS.max_nb_samples
 #soft ID
 SOFT_ID = ARGS.soft_id
 ########################################################################
