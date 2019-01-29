@@ -54,7 +54,7 @@ def download_and_process_soft(gse, erase=False):
 def rename_soft(soft_file, path_soft):
     """
     """
-    gse_dict = extract_gsm_from_soft(soft_file, path_soft=path_soft)
+    gse_dict = extract_gsm_from_soft(soft_file)
 
     if not gse_dict:
         print('soft_file:{0} empty!'.format(soft_file))
@@ -76,17 +76,15 @@ def rename_soft(soft_file, path_soft):
 
 def extract_gsm_from_soft(
         soft_file,
-        path_soft,
         flatten_gsm=False,
         remove_not_sra=True):
     """
     """
     gse_dict = {}
-    soft_path = '{0}/{1}'.format(path_soft, soft_file)
 
-    assert(isfile(soft_path))
+    assert(isfile(soft_file))
 
-    f_soft = open(soft_path)
+    f_soft = open(soft_file)
     line = f_soft.readline()
 
     while line:
