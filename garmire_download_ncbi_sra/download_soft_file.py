@@ -8,11 +8,15 @@ from glob import glob
 
 from collections import Counter
 
+from os import mkdir
+
 from os.path import isfile
 
 import re
 
 from collections import defaultdict
+
+from os.path import isdir
 
 from datetime import datetime
 
@@ -20,6 +24,9 @@ from datetime import datetime
 
 def main():
     """ """
+    if not isdir(PATH_DATA):
+        mkdir(PATH_DATA)
+
     download_and_process_soft(SOFT_ID)
 
 
