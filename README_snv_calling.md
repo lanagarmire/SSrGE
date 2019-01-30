@@ -11,6 +11,55 @@ This module aims to align reads from FASTQ files and infer SNVs from RNA-seq dat
 
 ##
 
+
+# STAR alignment and SNV calling from scratch using docker
+
+## Requirements
+* docker
+* possible root access
+* 13.8 GB of free memory (docker image) + memory for STAR indexes (usually 20 GB per index) and downloaded data
+
+## installation (local)
+
+```bash
+docker pull opoirion/ssrge
+mkdir /<Results data folder>/
+cd /<Results data folder>/
+PATHDATA=`pwd`
+```
+
+## usage
+
+The pipeline consists of  4 steps for aligning and calling SNVs:
+
+```bash
+# align and SNV calling
+docker run --rm opoirion/ssrge star_index -h
+docker run --rm opoirion/ssrge process_star -h
+docker run --rm opoirion/ssrge feature_counts -h
+docker run --rm opoirion/ssrge process_snv -h
+
+```
+
+## example
+
+Let's download and process 2 samples from GSE79457 in a project name test_n2
+
+```bash
+# download of the soft file containing the metadata for GSE79457 (see download section)
+## all these data can also be obtained using other alternative workflows
+# here you need to precise which read length to use for creating a STAR index and which ref organism (MOUSE/HUMAN)
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge star_index -project_name test_n2 -read_length 100 -cell_type HUMAN
+# STAR alignment
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge process_star -project_name test_n2 -read_length 100 -cell_type HUMAN
+# sample-> gene count matrix
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge feature_counts -project_name test_n2
+#SNV inference
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge process_snv -project_name test_n2 -cell_type HUMAN
+```
+
+# Installation from github (*not updated!!* => Use the docker image for now)
+
 ## Requirements
 * The pipeline requires that the following programs are installed:
     * Linux/ Unix (not tested) working environment

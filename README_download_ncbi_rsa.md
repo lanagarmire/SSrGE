@@ -3,6 +3,52 @@
 This module provides scripts to  download and extract SRA files for High-throughput genomic data from NCBI (GEO portal) using NCBI .soft file
 
 
+
+# SRA project download using docker
+
+## Requirements
+* docker
+* possible root access
+* 13.8 GB of free memory (docker image)
+
+## installation (local)
+
+```bash
+docker pull opoirion/ssrge
+mkdir /<Results data folder>/
+cd /<Results data folder>/
+PATHDATA=`pwd`
+```
+
+## usage
+
+The pipeline consists of 3 steps (for downloading the data) and 4 steps for aligning and calling SNVs:
+
+```bash
+# Download
+docker run --rm opoirion/ssrge download_soft_file -h
+docker run --rm opoirion/ssrge download_sra -h
+docker run --rm opoirion/ssrge extract_sra -h
+```
+
+## example
+
+Let's download and process 2 samples from GSE79457 in a project name test_n2
+
+```bash
+# download of the soft file containing the metadata for GSE79457
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge download_soft_file -project_name test_n2 -soft_id GSE79457
+# download sra files
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge download_sra -project_name test_n2 -max_nb_samples 2
+# exctract sra files
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge extract_sra -project_name test_n2
+# rm sra files (optionnal)
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge rm_sra -project_name test_n2
+```
+
+# Installation from github (*not updated!!* => Use the docker image for now)
+
+
 ## Requirements
 * [python 2 (>=2.7)](https://www.python.org/download/releases/2.7.2/)
 * The only external software needed is [fastq-dump](http://ncbi.github.io/sra-tools/install_config.html) to extract the .sra files. Path toward the executable must be given to the config file or parsed as argument

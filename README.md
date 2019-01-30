@@ -225,6 +225,7 @@ python2 ./garmire_SSrGE/generate_refgenome_index.py
 ## Requirements
 * docker
 * possible root access
+* 13.8 GB of free memory (docker image) + memory for STAR indexes (usually 20 GB per index) and downloaded data
 
 ## installation (local)
 
@@ -237,7 +238,7 @@ PATHDATA=`pwd`
 
 ## usage
 
-The pipeline consists of 3 steps (for downloading the data) and 3 steps for aligning and calling SNVs:
+The pipeline consists of 3 steps (for downloading the data) and 4 steps for aligning and calling SNVs:
 
 ```bash
 # Download
@@ -247,8 +248,33 @@ docker run --rm opoirion/ssrge extract_sra -h
 # align and SNV calling
 docker run --rm opoirion/ssrge star_index -h
 docker run --rm opoirion/ssrge process_star -h
+docker run --rm opoirion/ssrge feature_counts -h
 docker run --rm opoirion/ssrge process_snv -h
 
+```
+
+## example
+
+Let's download and process 2 samples from GSE79457 in a project name test_n2
+
+```bash
+# download of the soft file containing the metadata for GSE79457
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge download_soft_file -project_name test_n2 -soft_id GSE79457
+# download sra files
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge download_sra -project_name test_n2 -max_nb_samples 2
+# exctract sra files
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge extract_sra -project_name test_n2
+# rm sra files (optionnal)
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge rm_sra -project_name test_n2
+## all these data can also be obtained using other alternative workflows
+# here you need to precise which read length to use for creating a STAR index and which ref organism (MOUSE/HUMAN)
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge star_index -project_name test_n2 -read_length 100 -cell_type HUMAN
+# STAR alignment
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge process_star -project_name test_n2 -read_length 100 -cell_type HUMAN
+# sample-> gene count matrix
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge feature_counts -project_name test_n2
+#SNV inference
+docker run --rm -v $PATHDATA:/data/results/:Z opoirion/ssrge process_snv -project_name test_n2 -cell_type HUMAN
 ```
 
 
