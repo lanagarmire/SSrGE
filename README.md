@@ -8,6 +8,8 @@ SSrGE can be used as a stand-alone procedure to reduce any SNV matrix (raw:singl
 * [download_ncbi_data](https://github.com/lanagarmire/SSrGE/blob/master/README_download_ncbi_rsa.md): download and extract .sra files from NCBI
 * [SNV_calling](https://github.com/lanagarmire/SSrGE/blob/master/README_snv_calling.md): align reads/infer SNVs and infer gene expression matrices from .fastq files.
 
+Alternatively, we compiled the download, alignment, and SNV calling pipelines into a docker container: opoirion/ssrge (see bellow).
+
 
 ## installation (local)
 
@@ -217,21 +219,36 @@ python2 ./garmire_SSrGE/generate_refgenome_index.py
 
 * Once the index generated, the matrices can be genereated easily:
 
-```python
 
-extract_matrix = ExtractMatrix()
+# SRA project download, STAR alignment and SNV calling from scratch using docker
 
-help(extract_matrix)
+## Requirements
+* docker
+* possible root access
 
-SNV_mat = extract_matrix.extract_SNV_mat()
-GE_mat = extract_matrix.extract_GE_mat()
-
-```
-
-to test all the extraction workflow:
+## installation (local)
 
 ```bash
-python2 ./test/test_extract_matrices.py -v
+docker pull opoirion/ssrge
+mkdir /<Results data folder>/
+cd /<Results data folder>/
+PATHDATA=`pwd`
+```
+
+## usage
+
+The pipeline consists of 3 steps (for downloading the data) and 3 steps for aligning and calling SNVs:
+
+```bash
+# Download
+docker run --rm opoirion/ssrge download_soft_file -h
+docker run --rm opoirion/ssrge download_sra -h
+docker run --rm opoirion/ssrge extract_sra -h
+# align and SNV calling
+docker run --rm opoirion/ssrge star_index -h
+docker run --rm opoirion/ssrge process_star -h
+docker run --rm opoirion/ssrge process_snv -h
+
 ```
 
 
