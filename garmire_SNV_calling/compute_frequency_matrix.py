@@ -12,10 +12,11 @@ from garmire_SNV_calling.config import FEATURE_COUNT
 from garmire_SNV_calling.config import ANNOTATION_PATH
 from garmire_SNV_calling.config import MATRIX_OUTPUT_PATH as OUTPUT_PATH
 from garmire_SNV_calling.config import OUTPUT_PATH_STAR as STAR_PATH
+from garmire_SNV_calling.config import STAR_THREADS
 
 from multiprocessing import Pool
 
-from SNV_pipeline.bash_utils import exec_cmd
+from garmire_SNV_calling.bash_utils import exec_cmd
 
 
 ############ VARIABLE ################
@@ -40,6 +41,7 @@ def main():
     output_filename = OUTPUT_FILENAME[DEFAULT_ALIGNER]
 
     do_expression_profile(aligner_path, output_filename)
+
 
 def do_expression_profile(aligner_path, output_filename):
     """
@@ -72,13 +74,15 @@ def do_expression_profile(aligner_path, output_filename):
 
         cmd_list.append((bam_file, out_folder))
 
-    pool = Pool(int(nb_thread))
+    pool = Pool(STAR_THREADS)
     pool.map(_multiprocess_func, cmd_list)
+
 
 def _multiprocess_func(inp):
     """ """
     bam_file, out_folder = inp
     bam_file_to_expression_matrix(bam_file, out_folder)
+
 
 def bam_file_to_expression_matrix(
         bam_file,
