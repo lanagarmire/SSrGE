@@ -49,12 +49,8 @@ else:
 
 
 def main():
-    res = raw_input(
-        "==> ready to launch SNV on {0} processes\n continue? (Y/n)"\
+    print("launching SNV on {0} processes (Y/n)"\
               .format(NB_PROCESS))
-    if res != 'Y':
-        print('abord')
-        return
 
     mp_analysis = Mp_Analysis()
     mp_analysis.run()
