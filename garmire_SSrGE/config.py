@@ -1,8 +1,6 @@
 from garmire_SNV_calling.config import ANNOTATION_PATH
 from garmire_SNV_calling.config import PATH_OUTPUT as PROJECT_PATH
 from garmire_SNV_calling.config import SOFT_PATH as SNV_CALLING_SOFT_PATH
-from garmire_SNV_calling.config import MATRIX_OUTPUT_PATH
-from garmire_SNV_calling.config import OUTPUT_PATH_SNV
 
 """
 CONFIG file for SSrGE
@@ -42,7 +40,7 @@ INDEX_SAVE_PATH = "{0}/gtf_index/".format(PROJECT_PATH)
 
 # the path for the folders containing the expression matrix files
 # one folder per single cell and each folder contains a unique expression matrix (.txt) file
-EXPRESSION_MATRIX_FOLDER_PATH = '{0}/STAR/'.format(MATRIX_OUTPUT_PATH)
+EXPRESSION_MATRIX_FOLDER_PATH = '/STAR/'
 # the name of the gene expression matrix present inside each single-cell folder
 GENE_MATRIX_NAME = 'matrix_counts.txt'
 
@@ -51,13 +49,13 @@ USED_CALLER = 'MONOVAR' # {'MONOVAR', 'GATK'}
 
 ######################## Monovar caller ###############################################
 # The folder containing the .vcf files produced by Monovar and the .txt input files
-VCF_MONOVAR_PATH = '{0}/data/monovar/'.format(OUTPUT_PATH_SNV)
+VCF_MONOVAR_PATH = '/data/monovar/'
 
 ######################## GATK caller ##################################################
 # the name of the folder containing the folders containing the .vcf files
 # one folder per single cell and each single-cell folder contains a unique .vcf file
 # the path for the folders containing the .vcf files
-VCF_FOLDER_PATH = '{0}/data/'.format(OUTPUT_PATH_SNV)
+VCF_FOLDER_PATH = '/data/'
 # the name of the file containing the vcf inside each folder
 VCF_NAME = 'snv_filtered.vcf'
 ######################################################################################
